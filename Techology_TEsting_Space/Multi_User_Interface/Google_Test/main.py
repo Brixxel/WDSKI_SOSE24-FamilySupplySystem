@@ -11,7 +11,7 @@ class GoogleSheetDB:
                       "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
         self.creds = ServiceAccountCredentials.from_json_keyfile_name(credentials_file, self.scope)
         self.client = gspread.authorize(self.creds)
-        self.sheet = self.client.open_by_url(sheet_url).sheet1  # Using the URL to open the sheet
+        self.sheet = self.client.open_by_key(sheet_url).sheet1 
 
     def insert_user(self, username, password):
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -55,7 +55,7 @@ class LoginApp(App):
         return ScreenManagement()
 
     def login(self, username, password):
-        db = GoogleSheetDB('https://docs.google.com/spreadsheets/d/1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0/edit?usp=drive_link', 'credentials.json')
+        db = GoogleSheetDB('1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0', 'D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Techology_TEsting_Space/Multi_User_Interface/Google_Test/credentials.json')
         user = db.get_user(username)
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             print("Login successful")
@@ -63,7 +63,7 @@ class LoginApp(App):
             print("Invalid username or password")
 
     def register(self, username, password):
-        db = GoogleSheetDB('https://docs.google.com/spreadsheets/d/1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0/edit?usp=drive_link', 'credentials.json')
+        db = GoogleSheetDB('1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0', 'D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Techology_TEsting_Space/Multi_User_Interface/Google_Test/credentials.json')
         if db.get_user(username):
             print("User already exists")
         else:
