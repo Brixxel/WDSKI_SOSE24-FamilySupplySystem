@@ -1,0 +1,48 @@
+# login.kv
+<ScreenManagement>:
+    LoginScreen:
+    RegisterScreen:
+
+<LoginScreen>:
+    name: "login"
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: "Login"
+        TextInput:
+            id: username
+            hint_text: "Username"
+        TextInput:
+            id: password
+            hint_text: "Password"
+            password: True
+        Button:
+            text: "Login"
+            on_release:
+                app.login(username.text, password.text)
+        Button:
+            text: "Register"
+            on_release:
+                app.root.current = "register"
+
+<RegisterScreen>:
+    name: "register"
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: "Register"
+        TextInput:
+            id: new_username
+            hint_text: "Username"
+        TextInput:
+            id: new_password
+            hint_text: "Password"
+            password: True
+        Button:
+            text: "Register"
+            on_release:
+                app.register(new_username.text, new_password.text)
+        Button:
+            text: "Back to Login"
+            on_release:
+                app.root.current = "login"
