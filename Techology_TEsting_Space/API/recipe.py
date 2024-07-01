@@ -22,7 +22,7 @@ query = ",".join(zutaten)
 url = f"https://api.edamam.com/search?q={query}&from=0&to=10&app_id={app_id}&app_key={app_key}"
 
 # Debug-Ausgabe: URL anzeigen
-print(f"URL: {url}")
+# print(f"URL: {url}")
 
 # Senden der Anfrage an die Edamam API
 response = requests.get(url)
