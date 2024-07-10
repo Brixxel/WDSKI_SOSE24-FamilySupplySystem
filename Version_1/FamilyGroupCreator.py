@@ -15,7 +15,7 @@ Window.clearcolor = (0.8, 0.9, 1, 1)
 
 # Google Sheet Setup
 sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
-credentials_file = 'D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Techology_TEsting_Space/Multi_User_Interface/Google_Test/credentials.json'
+credentials_file = "C:/Users/de136581/Documents/_Uni/SoSe_2024/Programierung_2/WDSKI_SOSE24-FamilySupplySystem/Version_1/credentials.json"
 
 class GoogleSheetDB:
     def __init__(self, sheet_id, credentials_file):

@@ -55,7 +55,7 @@ class LoginApp(App):
         return ScreenManagement()
 
     def login(self, username, password):
-        db = GoogleSheetDB('1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0', 'D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Techology_TEsting_Space/Multi_User_Interface/Google_Test/credentials.json')
+        db = GoogleSheetDB('1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0', "C:/Users/de136581/Documents/_Uni/SoSe_2024/Programierung_2/WDSKI_SOSE24-FamilySupplySystem/Version_1/credentials.json")
         user = db.get_user(username)
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             print("Login successful")
@@ -63,7 +63,7 @@ class LoginApp(App):
             print("Invalid username or password")
 
     def register(self, username, password):
-        db = GoogleSheetDB('1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0', 'D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Techology_TEsting_Space/Multi_User_Interface/Google_Test/credentials.json')
+        db = GoogleSheetDB('1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0', "C:/Users/de136581/Documents/_Uni/SoSe_2024/Programierung_2/WDSKI_SOSE24-FamilySupplySystem/Version_1/credentials.json")
         if db.get_user(username):
             print("User already exists")
         else:
