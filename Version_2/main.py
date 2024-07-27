@@ -1,14 +1,21 @@
+import os
 import tkinter as tk
+from tkinter import ttk
 import customtkinter as ctk
 from family_group_creator import FamilyGroupApp
 from food_item_creator import FoodItemApp
 from google_sheet_db import GoogleSheetDB
 from account_manager import AccountManager
+from food_display_app import FoodDisplayApp
 
 
 # Google Sheet Setup
 sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
-credentials_file = "D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json"
+#credentials_file = "D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json"
+#credentials_file = "credentials.json"
+
+script_dir = os.path.dirname(__file__)
+credentials_file = os.path.join(script_dir, "credentials.json")
 
 
 class Menu(ctk.CTk):
@@ -80,26 +87,6 @@ class Menu(ctk.CTk):
         if self.Account["logged_in"]:
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
-
-            # canvas = tk.Canvas(self.main_frame)
-            # scrollbar = ctk.CTkScrollbar(self.main_frame, orientation="vertical", command=canvas.yview)
-            # scrollable_frame = ctk.CTkFrame(canvas)
-
-            # scrollable_frame.bind(
-            #     "<Configure>",
-            #     lambda e: canvas.configure(
-            #         scrollregion=canvas.bbox("all")
-            #     )
-            # )
-
-            # canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-            # canvas.configure(yscrollcommand=scrollbar.set)
-
-            # canvas.pack(side="left", fill="both", expand=True)
-            # scrollbar.pack(side="right", fill="y")
-
-            # Initialize the FoodItemApp in the scrollable frame
-            # food_item_app = FoodItemApp(scrollable_frame, sheet_id, credentials_file)
             food_item_app = FoodItemApp(self.main_frame, sheet_id, credentials_file, self.Account)
             food_item_app.pack(fill="both", expand=True)
         
@@ -113,8 +100,8 @@ class Menu(ctk.CTk):
         if self.Account["logged_in"]:
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
-            label = ctk.CTkLabel(self.main_frame, text="View Food Items - Coming Soon", font=("Arial", 20))
-            label.pack(pady=200)
+            food_display_app = FoodDisplayApp(self.main_frame, sheet_id, credentials_file, self.Account)
+            food_display_app.pack(fill="both", expand=True)
         else:
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
@@ -122,7 +109,7 @@ class Menu(ctk.CTk):
             label.pack(pady=200)
             
             
-    ### Account - Funktionen:
+    ### ---- Account - Funktionen: ----
     
     def open_account_manager(self):
         for widget in self.main_frame.winfo_children():
