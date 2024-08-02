@@ -1,0 +1,280 @@
+#:import rgba kivy.utils.get_color_from_hex
+
+ScreenManager:
+    LoginScreen:
+    RegisterScreen:
+    StartScreen:
+
+<LoginScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: rgba('#FFFFFF')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            text: 'Login'
+            font_size: 32
+            color: rgba('#000000')
+        TextInput:
+            id: username
+            hint_text: 'Username'
+            multiline: False
+            background_color: rgba('#EEEEEE')
+            foreground_color: rgba('#000000')
+        TextInput:
+            id: password
+            hint_text: 'Password'
+            password: True
+            multiline: False
+            background_color: rgba('#EEEEEE')
+            foreground_color: rgba('#000000')
+        Label:
+            id: login_error
+            text: ''
+            color: rgba('#FF0000')
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 10
+            Button:
+                text: 'Login'
+                size_hint: 0.5, 1
+                background_color: rgba('#ADD8E6')
+                color: rgba('#000000')
+                on_press: root.do_login(username.text, password.text)
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 10
+            Button:
+                text: 'Register'
+                size_hint: 0.5, 1
+                background_color: rgba('#ADD8E6')
+                color: rgba('#000000')
+                on_press: app.root.current = 'register'
+
+<RegisterScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: rgba('#FFFFFF')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            text: 'Register'
+            font_size: 32
+            color: rgba('#000000')
+        TextInput:
+            id: new_username
+            hint_text: 'Username'
+            multiline: False
+            background_color: rgba('#EEEEEE')
+            foreground_color: rgba('#000000')
+        TextInput:
+            id: email
+            hint_text: 'Email'
+            multiline: False
+            background_color: rgba('#EEEEEE')
+            foreground_color: rgba('#000000')
+        TextInput:
+            id: new_password
+            hint_text: 'Password'
+            password: True
+            multiline: False
+            background_color: rgba('#EEEEEE')
+            foreground_color: rgba('#000000')
+        TextInput:
+            id: confirm_password
+            hint_text: 'Confirm Password'
+            password: True
+            multiline: False
+            background_color: rgba('#EEEEEE')
+            foreground_color: rgba('#000000')
+        Label:
+            id: register_error
+            text: ''
+            color: rgba('#FF0000')
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 10
+            Button:
+                text: 'Register'
+                size_hint: 0.5, 1
+                background_color: rgba('#ADD8E6')
+                color: rgba('#000000')
+                on_press: root.do_register(new_username.text, email.text, new_password.text, confirm_password.text)
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 10
+            Button:
+                text: 'Back to Login'
+                size_hint: 0.5, 1
+                background_color: rgba('#ADD8E6')
+                color: rgba('#000000')
+                on_press: app.root.current = 'login'
+
+<StartScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: rgba('#FFFFFF')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            id: welcome_label
+            text: 'Willkommen'
+            font_size: 32
+            color: rgba('#000000')
+        Label:
+            id: group_options
+            text: ''
+            font_size: 18
+            color: rgba('#000000')
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: 50
+            spacing: 10
+            Button:
+                text: 'Create Group'
+                size_hint: 0.5, 1
+                background_color: rgba('#ADD8E6')
+                color: rgba('#000000')
+                on_press: app.root.current = 'create_group'
+            Button:
+                text: 'Join Group'
+                size_hint: 0.5, 1
+                background_color: rgba('#ADD8E6')
+                color: rgba('#000000')
+                on_press: app.root.current = 'join_group'
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 10
+            Button:
+                text: 'Logout'
+                size_hint: 0.5, 1
+                background_color: rgba('#ADD8E6')
+                color: rgba('#000000')
+                on_press: app.root.current = 'login'
+
+<CreateGroupScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: rgba('#FFFFFF')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            text: 'Create Family Group'
+            font_size: 32
+            color: rgba('#000000')
+        TextInput:
+            id: group_name
+            hint_text: 'Group Name'
+            multiline: False
+            background_color: rgba('#EEEEEE')
+            foreground_color: rgba('#000000')
+        TextInput:
+            id: group_password
+            hint_text: 'Group Password'
+            password: True
+            multiline: False
+            background_color: rgba('#EEEEEE')
+            foreground_color: rgba('#000000')
+        Label:
+            id: create_group_error
+            text: ''
+            color: rgba('#FF0000')
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 10
+            Button:
+                text: 'Create'
+                size_hint: 0.5, 1
+                background_color: rgba('#ADD8E6')
+                color: rgba('#000000')
+                on_press: root.create_group(group_name.text, group_password.text)
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 10
+            Button:
+                text: 'Back'
+                size_hint: 0.5, 1
+                background_color: rgba('#ADD8E6')
+                color: rgba('#000000')
+                on_press: app.root.current = 'start'
+
+<JoinGroupScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: rgba('#FFFFFF')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            text: 'Join Family Group'
+            font_size: 32
+            color: rgba('#000000')
+        TextInput:
+            id: join_group_name
+            hint_text: 'Group Name'
+            multiline: False
+            background_color: rgba('#EEEEEE')
+            foreground_color: rgba('#000000')
+        TextInput:
+            id: join_group_password
+            hint_text: 'Group Password'
+            password: True
+            multiline: False
+            background_color: rgba('#EEEEEE')
+            foreground_color: rgba('#000000')
+        Label:
+            id: join_group_error
+            text: ''
+            color: rgba('#FF0000')
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 10
+            Button:
+                text: 'Join'
+                size_hint: 0.5, 1
+                background_color: rgba('#ADD8E6')
+                color: rgba('#000000')
+                on_press: root.join_group(join_group_name.text, join_group_password.text)
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 10
+            Button:
+                text: 'Back'
+                size_hint: 0.5, 1
+                background_color: rgba('#ADD8E6')
+                color: rgba('#000000')
+                on_press: app.root.current = 'start'
