@@ -154,18 +154,23 @@ class FoodDisplayApp(ctk.CTkFrame):
                             *(len(str(self.tree.item(child, "values")[i])) for i, child in enumerate(self.tree.get_children())))
             self.tree.column(col, width=max_width * 10)  # Adjust width
 
-
     def edit_item(self):
         selected_item = self.tree.focus()
         if selected_item:
             values = self.tree.item(selected_item, "values")
-            # Hier den Bearbeitungsdialog implementieren und die Werte aktualisieren
+            EditItemDialog(self, values, self.update_item)
+
+    def update_item(self, original_values, new_values):
+        group_name = self.group_name_var.get()
+        entry_id = original_values[0]  # Angenommen, die ID ist in original_values[0]
+
+        self.db.update_food_item(entry_id, group_name, new_values)
+        self.fill_table()
 
     def delete_item(self):
         selected_item = self.tree.focus()
         if selected_item:
             values = self.tree.item(selected_item, "values")
-            # Hier die Löschlogik implementieren und den Eintrag aus der Datenbank und der Treeview entfernen
             self.db.delete_entry(values[0], self.group_name_var.get())  # Angenommen, die ID ist in values[0]
             self.tree.delete(selected_item)
             
@@ -174,3 +179,38 @@ class FoodDisplayApp(ctk.CTkFrame):
     
     def apply_filter(self):
         pass
+
+
+
+class EditItemDialog(ctk.CTkToplevel):
+    def __init__(self, parent, values, callback):
+        super().__init__(parent)
+        self.values = values
+        self.callback = callback
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.title("Bearbeiten")
+
+        labels = ["Storage Name", "Food", "Food Type", "Food Ingredients", "Food Amount", "Amount Type", "Expire Day", "Sonst Info"]
+        self.entries = []
+
+        for i, (label, value) in enumerate(zip(labels, self.values[1:]), start=1):
+            lbl = ctk.CTkLabel(self, text=label)
+            lbl.grid(row=i, column=0, padx=20, pady=10, sticky='w')
+
+            entry = ctk.CTkEntry(self)
+            entry.grid(row=i, column=1, padx=20, pady=10, sticky='ew')
+            entry.insert(0, value)
+            self.entries.append(entry)
+
+        save_button = ctk.CTkButton(self, text="Speichern", command=self.save)
+        save_button.grid(row=len(labels)+1, column=0, columnspan=2, padx=20, pady=20)
+
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+
+    def save(self):
+        new_values = [entry.get() for entry in self.entries]
+        self.callback(self.values, new_values)
+        self.destroy()

@@ -1,4 +1,5 @@
 import gspread
+import os
 from tkinter import messagebox
 from oauth2client.service_account import ServiceAccountCredentials
 import uuid
@@ -6,7 +7,11 @@ import hashlib
 
 # Google Sheet Setup
 sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
-credentials_file = "D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json"
+#credentials_file = "D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json"
+#credentials_file = "credentials.json"
+
+script_dir = os.path.dirname(__file__)
+credentials_file = os.path.join(script_dir, "credentials.json")
 
 
 class GoogleSheetDB:
@@ -94,6 +99,13 @@ class GoogleSheetDB:
             amount_type, expire_day, sonst_info
         ])
     
+    def update_food_item(self, entry_id, group_name, new_values):
+        sheet_name = f"Storage_{group_name}"
+        sheet = self.client.open_by_key(sheet_id).worksheet(sheet_name)
+        cell = sheet.find(entry_id)
+        if cell:
+            row = cell
+
     def get_storage_items(self, group_name, storage_name):
         sheet_name = f"Storage_{group_name}"
         sheet = self.client.open_by_key(sheet_id).worksheet(sheet_name)
@@ -114,3 +126,4 @@ class GoogleSheetDB:
         cell = sheet.find(entry_id)
         if cell:
             sheet.delete_rows(cell.row)
+
