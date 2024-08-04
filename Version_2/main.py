@@ -11,11 +11,12 @@ from food_display_app import FoodDisplayApp
 
 # Google Sheet Setup
 sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
-#credentials_file = "D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json"
-#credentials_file = "credentials.json"
+# credentials_file = "/Users/tom/Documents/GitHub/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json"
+# credentials_file = "credentials.json"
 
 script_dir = os.path.dirname(__file__)
 credentials_file = os.path.join(script_dir, "credentials.json")
+print(f"Credentials file path: {credentials_file}")
 
 
 class Menu(ctk.CTk):
@@ -69,13 +70,13 @@ class Menu(ctk.CTk):
         self.appearance_mode_label = ctk.CTkLabel(self.menu_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=10, column=0, padx=20, pady=(10, 0))
         self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.menu_frame, values=["Light", "Dark", "System"],
-                                                                       command=self.change_appearance_mode_event)
+                                                                command=self.change_appearance_mode_event)
         self.appearance_mode_optionemenu.grid(row=11, column=0, padx=20, pady=(10, 10))
         
         self.scaling_label = ctk.CTkLabel(self.menu_frame, text="UI Scaling:", anchor="w")
         self.scaling_label.grid(row=12, column=0, padx=20, pady=(10, 0))
         self.scaling_optionemenu = ctk.CTkOptionMenu(self.menu_frame, values=["80%", "90%", "100%", "110%", "120%"],
-                                                               command=self.change_scaling_event)
+                                                            command=self.change_scaling_event)
         self.scaling_optionemenu.grid(row=13, column=0, padx=20, pady=(10, 20))
 
         

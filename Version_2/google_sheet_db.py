@@ -3,11 +3,13 @@ from tkinter import messagebox
 from oauth2client.service_account import ServiceAccountCredentials
 import uuid
 import hashlib
+import os
 
 # Google Sheet Setup
 sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
-credentials_file = "D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json"
-
+#credentials_file = "D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json"
+script_dir = os.path.dirname(__file__)
+credentials_file = os.path.join(script_dir, "credentials.json")
 
 class GoogleSheetDB:
     def __init__(self, sheet_id, credentials_file):
