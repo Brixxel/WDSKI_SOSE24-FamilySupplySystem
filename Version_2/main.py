@@ -24,8 +24,6 @@ class Menu(ctk.CTk):
         self.db = GoogleSheetDB(sheet_id, credentials_file)
         self.group_name = "dieReglers"  # Placeholder, replace with actual group name after login
         
-        #TODO Need a function to log_in and fill the dict:
-        #TODO Also: if not logged in, block all functions
         ### Account Details (loged_in)
         self.Account = {
             "logged_in" : True,
