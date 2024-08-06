@@ -195,7 +195,7 @@ class EditItemDialog(ctk.CTkToplevel):
         labels = ["Storage Name", "Food", "Food Type", "Food Ingredients", "Food Amount", "Amount Type", "Expire Day", "Sonst Info"]
         self.entries = []
 
-        for i, (label, value) in enumerate(zip(labels, self.values[1:]), start=1):
+        for i, (label, value) in enumerate(zip(labels, self.values[0:]), start=0):
             lbl = ctk.CTkLabel(self, text=label)
             lbl.grid(row=i, column=0, padx=20, pady=10, sticky='w')
 
@@ -211,6 +211,6 @@ class EditItemDialog(ctk.CTkToplevel):
         self.columnconfigure(1, weight=1)
 
     def save(self):
-        new_values = [entry.get() for entry in self.entries]
+        new_values = [self.values[0]] + [entry.get() for entry in self.entries]  # Preserve the ID
         self.callback(self.values, new_values)
         self.destroy()
