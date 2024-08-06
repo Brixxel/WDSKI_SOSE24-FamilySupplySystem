@@ -101,7 +101,7 @@ class GoogleSheetDB:
     
     def update_food_item(self, entry_id, group_name, new_values):
         sheet_name = f"Storage_{group_name}"
-        sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
+        sheet = self.client.open_by_key(sheet_id).worksheet(sheet_name)
         cell = sheet.find(entry_id)
         
         if cell:
