@@ -101,10 +101,13 @@ class GoogleSheetDB:
     
     def update_food_item(self, entry_id, group_name, new_values):
         sheet_name = f"Storage_{group_name}"
-        sheet = self.client.open_by_key(sheet_id).worksheet(sheet_name)
+        sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
         cell = sheet.find(entry_id)
+        
         if cell:
-            row = cell
+            row_number = cell.row
+            for col_index, value in enumerate(new_values, start=1):
+                sheet.update_cell(row_number, col_index, value)
 
     def get_storage_items(self, group_name, storage_name):
         sheet_name = f"Storage_{group_name}"
