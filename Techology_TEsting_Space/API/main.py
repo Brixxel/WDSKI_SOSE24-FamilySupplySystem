@@ -10,7 +10,7 @@ from deep_translator import DeeplTranslator
 import json
 
 # Lade die API-Schlüssel aus der credentials.json Datei
-credentials_file = "/Users/tom/Documents/GitHub/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json"
+credentials_file = "C:/Users/U769258/OneDrive - Lufthansa Group/Documents/Uni/Programmierprojekt/WDSKI_SOSE24-FamilySupplySystem/Techology_TEsting_Space/API/credentials.json"
 
 with open(credentials_file, "r") as file:
     data = json.load(file)
@@ -59,7 +59,7 @@ class RecipeApp(ctk.CTk):
         self.output_frame = ctk.CTkFrame(self, width=600, height=600)
         self.output_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nswe")
 
-        self.output_canvas = tk.Canvas(self.output_frame)
+        self.output_canvas = tk.Canvas(self.output_frame, bg="#2b2b2b")
         self.output_canvas.pack(expand=True, fill="both", padx=10, pady=10)
 
         self.scrollbar = tk.Scrollbar(self.output_frame, orient="vertical", command=self.output_canvas.yview, width=20)  # Setze die Breite der Scrollbar auf 20
@@ -68,7 +68,7 @@ class RecipeApp(ctk.CTk):
         self.output_canvas.configure(yscrollcommand=self.scrollbar.set)
         self.output_canvas.bind('<Configure>', lambda e: self.output_canvas.configure(scrollregion=self.output_canvas.bbox("all")))
 
-        self.canvas_frame = tk.Frame(self.output_canvas)
+        self.canvas_frame = tk.Frame(self.output_canvas, bg="#2b2b2b")
         self.output_canvas.create_window((0, 0), window=self.canvas_frame, anchor="nw")
 
     def on_search_button_click(self):
@@ -106,17 +106,17 @@ class RecipeApp(ctk.CTk):
                 recipe = hit['recipe']
 
                 translated_label = translator.translate(recipe['label'])
-                label = ctk.CTkLabel(self.canvas_frame, text=f"Rezept: {translated_label}")
+                label = ctk.CTkLabel(self.canvas_frame, text=f"Rezept: {translated_label}", bg_color="#2b2b2b")
                 label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 y_position += 1
 
-                url_label = tk.Label(self.canvas_frame, text=recipe['url'], fg="blue", cursor="hand2")
+                url_label = tk.Label(self.canvas_frame, text=recipe['url'], fg="blue", cursor="hand2", background="#2b2b2b")
                 url_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 url_label.bind("<Button-1>", self.open_url)
                 y_position += 1
 
                 translated_ingredients = translator.translate(", ".join(recipe['ingredientLines']))
-                ingredients_label = ctk.CTkLabel(self.canvas_frame, text=f"Zutaten: {translated_ingredients}")
+                ingredients_label = ctk.CTkLabel(self.canvas_frame, text=f"Zutaten: {translated_ingredients}",bg_color="#2b2b2b")
                 ingredients_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 y_position += 1
 
@@ -130,7 +130,7 @@ class RecipeApp(ctk.CTk):
 
                 self.images.append(photo)  # Halte eine Referenz auf das Bild
 
-                image_label = tk.Label(self.canvas_frame, image=photo)
+                image_label = tk.Label(self.canvas_frame, image=photo, bg="#2b2b2b")
                 image_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 y_position += 1
 
