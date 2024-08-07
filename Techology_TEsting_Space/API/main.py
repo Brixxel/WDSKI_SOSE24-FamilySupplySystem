@@ -3,8 +3,8 @@ from tkinter import ttk
 import customtkinter as ctk
 from PIL import Image, ImageTk
 import io
-import requests  # Importiere requests für Bildanfragen
-import webbrowser  # Importiere webbrowser für das Öffnen von Links
+import requests
+import webbrowser
 from api_module import search_recipes
 from deep_translator import DeeplTranslator
 import json
@@ -60,20 +60,26 @@ class RecipeApp(ctk.CTk):
         self.output_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nswe")
 
         self.output_canvas = tk.Canvas(self.output_frame, bg="#2b2b2b", highlightthickness=0)  # Entferne den Rahmen
-        self.output_canvas.pack(expand=True, fill="both", padx=10, pady=10)
+        self.output_canvas.pack(side="left", expand=True, fill="both", padx=10, pady=10)
 
         self.scrollbar = tk.Scrollbar(self.output_frame, orient="vertical", command=self.output_canvas.yview, width=20)  # Setze die Breite der Scrollbar auf 20
         self.scrollbar.pack(side="right", fill="y")
 
         self.output_canvas.configure(yscrollcommand=self.scrollbar.set)
-        self.output_canvas.bind('<Configure>', lambda e: self.output_canvas.configure(scrollregion=self.output_canvas.bbox("all")))
 
         self.canvas_frame = tk.Frame(self.output_canvas, bg="#2b2b2b")
         self.output_canvas.create_window((0, 0), window=self.canvas_frame, anchor="nw")
 
+        # Binde das Configure-Event des Canvas an die on_canvas_configure-Methode
+        self.canvas_frame.bind("<Configure>", self.on_canvas_configure)
+
+        # Stil für Separator erstellen
         style = ttk.Style()
         style.configure("My.TSeparator", background="#2b2b2b")
 
+    def on_canvas_configure(self, event):
+        # Berechne die Scrollregion korrekt
+        self.output_canvas.configure(scrollregion=self.output_canvas.bbox("all"))
 
     def on_search_button_click(self):
         selected = [ingredient for ingredient, var in self.selected_ingredients.items() if var.get()]
@@ -91,7 +97,7 @@ class RecipeApp(ctk.CTk):
     def display_message(self, message):
         for widget in self.canvas_frame.winfo_children():
             widget.destroy()
-        label = ctk.CTkLabel(self.canvas_frame, text=message)
+        label = ctk.CTkLabel(self.canvas_frame, text=message, bg_color="#2b2b2b")
         label.pack()
 
     def open_url(self, event):
@@ -114,13 +120,13 @@ class RecipeApp(ctk.CTk):
                 label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 y_position += 1
 
-                url_label = tk.Label(self.canvas_frame, text=recipe['url'], fg="#00bfff", cursor="hand2", background="#2b2b2b")  # Verwende eine hellblaue Farbe für den Link
+                url_label = tk.Label(self.canvas_frame, text=recipe['url'], fg="#00bfff", cursor="hand2", background="#2b2b2b")
                 url_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 url_label.bind("<Button-1>", self.open_url)
                 y_position += 1
 
                 translated_ingredients = translator.translate(", ".join(recipe['ingredientLines']))
-                ingredients_label = tk.Message(self.canvas_frame, text=f"Zutaten: {translated_ingredients}", bg="#2b2b2b", fg="white", width=500)
+                ingredients_label = ctk.CTkLabel(self.canvas_frame, text=f"Zutaten: {translated_ingredients}", bg_color="#2b2b2b", wraplength=500)
                 ingredients_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 y_position += 1
 
@@ -138,10 +144,12 @@ class RecipeApp(ctk.CTk):
                 image_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 y_position += 1
 
-                separator = ttk.Separator(self.canvas_frame, orient='horizontal', style="My.TSeparator")  # Verwende eine benutzerdefinierte Separator-Stil
+                separator = ttk.Separator(self.canvas_frame, orient='horizontal', style="My.TSeparator")
                 separator.grid(row=y_position, column=0, padx=10, pady=10, sticky="we")
                 y_position += 1
 
+            # Verwende after, um sicherzustellen, dass die Scrollregion aktualisiert wird
+            self.canvas_frame.after(100, self.on_canvas_configure, None)
         else:
             self.display_message("Keine Rezepte gefunden.")
 
