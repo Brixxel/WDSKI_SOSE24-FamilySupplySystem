@@ -59,7 +59,7 @@ class RecipeApp(ctk.CTk):
         self.output_frame = ctk.CTkFrame(self, width=600, height=600)
         self.output_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nswe")
 
-        self.output_canvas = tk.Canvas(self.output_frame, bg="#2b2b2b")
+        self.output_canvas = tk.Canvas(self.output_frame, bg="#2b2b2b", highlightthickness=0)  # Entferne den Rahmen
         self.output_canvas.pack(expand=True, fill="both", padx=10, pady=10)
 
         self.scrollbar = tk.Scrollbar(self.output_frame, orient="vertical", command=self.output_canvas.yview, width=20)  # Setze die Breite der Scrollbar auf 20
@@ -70,6 +70,10 @@ class RecipeApp(ctk.CTk):
 
         self.canvas_frame = tk.Frame(self.output_canvas, bg="#2b2b2b")
         self.output_canvas.create_window((0, 0), window=self.canvas_frame, anchor="nw")
+
+        style = ttk.Style()
+        style.configure("My.TSeparator", background="#2b2b2b")
+
 
     def on_search_button_click(self):
         selected = [ingredient for ingredient, var in self.selected_ingredients.items() if var.get()]
@@ -110,13 +114,13 @@ class RecipeApp(ctk.CTk):
                 label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 y_position += 1
 
-                url_label = tk.Label(self.canvas_frame, text=recipe['url'], fg="blue", cursor="hand2", background="#2b2b2b")
+                url_label = tk.Label(self.canvas_frame, text=recipe['url'], fg="#00bfff", cursor="hand2", background="#2b2b2b")  # Verwende eine hellblaue Farbe für den Link
                 url_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 url_label.bind("<Button-1>", self.open_url)
                 y_position += 1
 
                 translated_ingredients = translator.translate(", ".join(recipe['ingredientLines']))
-                ingredients_label = ctk.CTkLabel(self.canvas_frame, text=f"Zutaten: {translated_ingredients}",bg_color="#2b2b2b")
+                ingredients_label = tk.Message(self.canvas_frame, text=f"Zutaten: {translated_ingredients}", bg="#2b2b2b", fg="white", width=500)
                 ingredients_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 y_position += 1
 
@@ -134,7 +138,7 @@ class RecipeApp(ctk.CTk):
                 image_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
                 y_position += 1
 
-                separator = ttk.Separator(self.canvas_frame, orient='horizontal')
+                separator = ttk.Separator(self.canvas_frame, orient='horizontal', style="My.TSeparator")  # Verwende eine benutzerdefinierte Separator-Stil
                 separator.grid(row=y_position, column=0, padx=10, pady=10, sticky="we")
                 y_position += 1
 
