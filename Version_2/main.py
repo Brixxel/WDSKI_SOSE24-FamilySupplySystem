@@ -16,7 +16,6 @@ sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
 
 script_dir = os.path.dirname(__file__)
 credentials_file = os.path.join(script_dir, "credentials.json")
-print(f"Credentials file path: {credentials_file}")
 
 
 class Menu(ctk.CTk):

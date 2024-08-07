@@ -1,16 +1,26 @@
 import requests
 import json
+from deep_translator import DeeplTranslator
 
-zutaten = ['apple', 'flour', 'sugar']
+key = ""
+with open("/Users/tom/Documents/GitHub/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json", "r") as file:
+    data = json.load(file)
+    key = data["api_key_deepL"]
+
+texts = ["apfel", "mehl", "zucker"]
+
+translated = DeeplTranslator(api_key=key, source="de", target="en").translate_batch(texts)
+
+zutaten = translated
 
 app_key = ""
-with open("/Users/tom/Documents/GitHub/WDSKI_SOSE24-FamilySupplySystem/credentials.json", "r") as file:
+with open("/Users/tom/Documents/GitHub/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json", "r") as file:
     data = json.load(file)
     app_key = data["app_key_edamam"]
 
 
 app_id = ""
-with open("/Users/tom/Documents/GitHub/WDSKI_SOSE24-FamilySupplySystem/credentials.json", "r") as file:
+with open("/Users/tom/Documents/GitHub/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json", "r") as file:
     data = json.load(file)
     app_id = data["app_id_edamam"]
 
