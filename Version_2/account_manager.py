@@ -5,6 +5,8 @@ import customtkinter as ctk
 from google_sheet_db import GoogleSheetDB
 
 from family_group_creator import FamilyGroupApp
+from family_join_app import FamilyJoinApp
+from edit_account import EditAccountApp
 
 class AccountManager(ctk.CTkFrame):
 
@@ -106,6 +108,7 @@ class AccountManager(ctk.CTkFrame):
         else:
             messagebox.showerror("Error", "Username or email already exists!")
 
+
     def is_valid_email(self, email):
         pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
         return re.match(pattern, email) is not None
@@ -131,12 +134,16 @@ class AccountManager(ctk.CTkFrame):
         family_group_app.pack(fill="both", expand=True)
 
     def join_family(self):
-        # Dummy join family function
-        messagebox.showinfo("Join Family", "Joined family successfully!")
+        self.clear_screen()
+        username = self.Account["name"]  # Hier wird der Username korrekt aus dem Account-Objekt genommen
+        family_join_app = FamilyJoinApp(self, username, self.sheet_id, self.credentials_file)  # Hier wird der Username an die FamilyJoinApp übergeben
+        family_join_app.pack(fill="both", expand=True)
 
     def edit_account(self):
-        # Dummy edit account function
-        messagebox.showinfo("Edit Account", "Account edited successfully!")
+        self.clear_screen()
+        username = self.Account["name"]
+        family_group_app = EditAccountApp(self, username, self.sheet_id, self.credentials_file)
+        family_group_app.pack(fill="both", expand=True)
 
     def clear_screen(self):
         for widget in self.winfo_children():
