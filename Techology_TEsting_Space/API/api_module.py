@@ -1,9 +1,11 @@
 import requests
 import json
 from deep_translator import DeeplTranslator
+import os
 
 # Lade die API-Schlüssel aus der credentials.json Datei
-credentials_file = "C:/Users/U769258/OneDrive - Lufthansa Group/Documents/Uni/Programmierprojekt/WDSKI_SOSE24-FamilySupplySystem/Techology_TEsting_Space/API/credentials.json"
+script_dir = os.path.dirname(__file__)
+credentials_file = os.path.join(script_dir, "credentials.json")
 
 
 with open(credentials_file, "r") as file:
