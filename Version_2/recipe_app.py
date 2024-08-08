@@ -53,10 +53,15 @@ class RecipeApp(ctk.CTkFrame):
             self.fill_ingredients()
 
     def fill_ingredients(self, *args):
-        """Lädt die Zutaten aus dem Google Sheet für den ausgewählten Storage"""
+        """Lädt die Zutaten aus dem Google Sheet für den ausgewählten Storage und filtert nach Rohkost."""
         selected_group = self.group_name_var.get()
         selected_storage = self.storage_name_var.get()
-        self.ingredients = self.db.get_food_items_from_storage(selected_group, selected_storage)
+        
+        # Abrufen der Lebensmittel aus der Google Sheet Datenbank
+        all_ingredients = self.db.get_food_items_from_storage(selected_group, selected_storage)
+        
+        # Filtern nach food_type 'Rohkost'
+        self.ingredients = [item['name'] for item in all_ingredients if item['food_type'] == 'Rohkost']
 
         # UI-Elemente für Zutaten aktualisieren
         for widget in self.check_buttons_frame.winfo_children():
@@ -68,6 +73,7 @@ class RecipeApp(ctk.CTkFrame):
             self.selected_ingredients[ingredient] = var
             check_button = ctk.CTkCheckBox(self.check_buttons_frame, text=ingredient, variable=var)
             check_button.pack(anchor='w')
+
 
     def create_widgets(self):
         self.grid_columnconfigure(0, weight=1)
