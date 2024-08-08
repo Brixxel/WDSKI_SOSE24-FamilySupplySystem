@@ -22,7 +22,16 @@ class GoogleSheetDB:
     def get_all_group_names(self):      
         records = self.group_sheet.get_all_records()
         return [record['GroupName'] for record in records]
+        
+    def get_storage_names(self, group_name):
+        records = self.get_all_storages_from_family(group_name)
+        return records
 
+    def get_food_items_from_storage(self, group_name, storage_name):
+        sheet_name = f"Storage_{group_name}"
+        sheet = self.client.open_by_key(sheet_id).worksheet(sheet_name)
+        records = sheet.get_all_records()
+        return [record['food'] for record in records if record['Storage_Name'] == storage_name]
 
     def get_all_storages_from_family(self, fam_name):
         records = self.group_sheet.get_all_records()
@@ -30,6 +39,11 @@ class GoogleSheetDB:
         # Split the single string into parts and strip any leading/trailing whitespace from each part
         storages = [item.strip() for item in storages[0].split(',')]
         return storages
+    
+    def get_storage_list(self, group_name):
+        records = self.get_all_storages_from_family(group_name)
+        return records    
+        
 
     def get_storage_names(self, group_name):
         sheet_name = f"Storage_{group_name}"

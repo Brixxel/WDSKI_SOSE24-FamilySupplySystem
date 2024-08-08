@@ -94,8 +94,7 @@ class Menu(ctk.CTk):
         if self.Account["logged_in"]:
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
-            # RecipeApp benötigt keine Zutaten als Parameter mehr'
-            recipe_app = RecipeApp(self.main_frame)
+            recipe_app = RecipeApp(self.main_frame, self.Account)  # Übergebe den Account-Parameter
             recipe_app.pack(fill="both", expand=True)
         else:
             self.show_login_prompt()

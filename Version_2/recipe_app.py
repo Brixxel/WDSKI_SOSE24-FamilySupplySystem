@@ -11,6 +11,7 @@ from deep_translator import DeeplTranslator
 import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from google_sheet_db import GoogleSheetDB  # Stelle sicher, dass diese Klasse importiert ist
 
 script_dir = os.path.dirname(__file__)
 credentials_file = os.path.join(script_dir, "credentials.json")
@@ -19,37 +20,54 @@ with open(credentials_file, "r") as file:
     deepL_key = data["api_key_deepL"]
 
 class RecipeApp(ctk.CTkFrame):
-    def __init__(self, parent):
+    def __init__(self, parent, account):
         super().__init__(parent)
+        
+        self.account = account
+        self.sheet_id = data["sheet_id"]
+        self.credentials_file = os.path.join(script_dir, "credentials.json")
+        self.db = GoogleSheetDB(self.sheet_id, self.credentials_file)
 
-        self.script_dir = os.path.dirname(__file__)
-        self.credentials_file = os.path.join(self.script_dir, "credentials.json")
+        # Group names für die Auswahl
+        self.group_names = self.account["groups"]
 
-        # Lade die Zutaten aus Google Sheets
-        self.ingredients = self.load_ingredients_from_sheet()
+        # Variablen für die gewählte Gruppe und die Zutaten
+        self.group_name_var = tk.StringVar(value=self.group_names[0] if self.group_names else "")
+        self.storage_name_var = tk.StringVar()
+        self.ingredients = []
         self.selected_ingredients = {}
         self.images = []
 
         self.create_widgets()
+        self.fill_storages()  # Storages laden und anzeigen
 
-    def load_ingredients_from_sheet(self):
-        # Google Sheets API Setup
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(self.credentials_file, scope)
-        client = gspread.authorize(creds)
+    def fill_storages(self, *args):
+        """Lädt die Storages aus dem Google Sheet für die ausgewählte Gruppe"""
+        selected_group = self.group_name_var.get()
+        self.storages = self.db.get_storage_names(selected_group)
 
-        # Google Sheet ID und Worksheet Name aus credentials.json laden
-        with open(self.credentials_file, "r") as file:
-            data = json.load(file)
-            sheet_id = data["sheet_id"]
-            range_name = data["range_name"]
+        # UI-Elemente für Storage-Auswahl aktualisieren
+        self.dropdown_storage_name.configure(values=self.storages)
+        if self.storages:
+            self.storage_name_var.set(self.storages[0])
+            self.fill_ingredients()
 
-        # Öffne das Google Sheet und lade die Zutaten
-        worksheet = client.open_by_key(sheet_id).worksheet(range_name.split('!')[0])
-        data = worksheet.get_all_records()
+    def fill_ingredients(self, *args):
+        """Lädt die Zutaten aus dem Google Sheet für den ausgewählten Storage"""
+        selected_group = self.group_name_var.get()
+        selected_storage = self.storage_name_var.get()
+        self.ingredients = self.db.get_food_items_from_storage(selected_group, selected_storage)
 
-        # Filtere die Zutaten nach Rohkost
-        return [row['food'] for row in data if row['food_type'] == 'Rohkost']
+        # UI-Elemente für Zutaten aktualisieren
+        for widget in self.check_buttons_frame.winfo_children():
+            widget.destroy()
+        self.selected_ingredients.clear()
+
+        for ingredient in self.ingredients:
+            var = tk.BooleanVar()
+            self.selected_ingredients[ingredient] = var
+            check_button = ctk.CTkCheckBox(self.check_buttons_frame, text=ingredient, variable=var)
+            check_button.pack(anchor='w')
 
     def create_widgets(self):
         self.grid_columnconfigure(0, weight=1)
@@ -59,24 +77,32 @@ class RecipeApp(ctk.CTkFrame):
         self.input_frame = ctk.CTkFrame(self, width=200, height=600)
         self.input_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ns")
 
+        self.label = ctk.CTkLabel(self.input_frame, text="Select family group:")
+        self.label.grid(row=0, column=0, padx=10, pady=(10, 5), sticky="w")
+
+        # Dropdown-Menü für die Gruppenwahl
+        self.dropdown_group_name = ctk.CTkOptionMenu(self.input_frame, variable=self.group_name_var, values=self.group_names, command=self.fill_storages)
+        self.dropdown_group_name.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+
+        self.label = ctk.CTkLabel(self.input_frame, text="Select storage:")
+        self.label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
+
+        # Dropdown-Menü für die Storage-Auswahl
+        self.dropdown_storage_name = ctk.CTkOptionMenu(self.input_frame, variable=self.storage_name_var, command=self.fill_ingredients)
+        self.dropdown_storage_name.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
+
         self.label = ctk.CTkLabel(self.input_frame, text="Select ingredients:")
-        self.label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+        self.label.grid(row=4, column=0, padx=10, pady=10, sticky="w")
 
         self.check_buttons_frame = ctk.CTkFrame(self.input_frame)
-        self.check_buttons_frame.grid(row=1, column=0, padx=10, pady=10, sticky="w")
-
-        for ingredient in self.ingredients:
-            var = tk.BooleanVar()
-            self.selected_ingredients[ingredient] = var
-            check_button = ctk.CTkCheckBox(self.check_buttons_frame, text=ingredient, variable=var)
-            check_button.pack(anchor='w')
+        self.check_buttons_frame.grid(row=5, column=0, padx=10, pady=10, sticky="w")
 
         self.vegetarian_var = tk.BooleanVar()
         self.vegetarian_check = ctk.CTkCheckBox(self.input_frame, text="Vegetarian", variable=self.vegetarian_var)
-        self.vegetarian_check.grid(row=2, column=0, padx=10, pady=10, sticky="w")
+        self.vegetarian_check.grid(row=6, column=0, padx=10, pady=10, sticky="w")
 
         self.search_button = ctk.CTkButton(self.input_frame, text="Search Recipes", command=self.on_search_button_click)
-        self.search_button.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+        self.search_button.grid(row=7, column=0, padx=10, pady=10, sticky="w")
 
         self.output_frame = ctk.CTkFrame(self, width=600, height=600)
         self.output_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nswe")
@@ -97,7 +123,7 @@ class RecipeApp(ctk.CTkFrame):
         style = ttk.Style()
         style.configure("My.TSeparator", background="#2b2b2b")
 
-    def on_canvas_configure(self, event):
+    def on_canvas_configure(self, event=None):
         self.output_canvas.configure(scrollregion=self.output_canvas.bbox("all"))
 
     def on_search_button_click(self):
