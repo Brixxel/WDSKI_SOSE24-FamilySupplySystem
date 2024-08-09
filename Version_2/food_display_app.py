@@ -5,6 +5,7 @@ import customtkinter as ctk
 from tkinter import ttk
 from google_sheet_db import GoogleSheetDB
 import tkinter as tk
+import datetime
 
 # from google_sheet_db import GoogleSheetDB
 
@@ -156,7 +157,7 @@ class FoodDisplayApp(ctk.CTkFrame):
         selected_item = self.tree.focus()
         if selected_item:
             values = self.tree.item(selected_item, "values")
-            EditItemDialog(self, values, self.update_item)
+            EditItemDialog(self, values, self.update_item, self.db, self.group_name_var.get())
 
     def update_item(self, original_values, new_values):
         group_name = self.group_name_var.get()
@@ -300,36 +301,131 @@ class FoodDisplayApp(ctk.CTkFrame):
         disable_filter_button.pack(pady=5)
 
 
-
+### Zum Bearbeiten der Einträge ###
 class EditItemDialog(ctk.CTkToplevel):
-    def __init__(self, parent, values, callback):
+    def __init__(self, parent, values, callback, db, group_name):
         super().__init__(parent)
         self.values = values
         self.callback = callback
+        self.db = db
+        self.group_name = group_name
         self.create_widgets()
 
     def create_widgets(self):
         self.title("Bearbeiten")
 
         labels = ["Storage Name", "Food", "Food Type", "Food Ingredients", "Food Amount", "Amount Type", "Expire Day", "Sonst Info"]
-        self.entries = []
+        
+        # Dropdown für Storage
+        storage_label = ctk.CTkLabel(self, text=labels[0])
+        storage_label.grid(row=0, column=0, padx=20, pady=10, sticky='w')
+        
+        self.storage_var = tk.StringVar(value=self.values[0])
+        storage_dropdown = ctk.CTkOptionMenu(self, variable=self.storage_var, values=self.db.get_all_storages_from_family(self.group_name))
+        storage_dropdown.grid(row=0, column=1, padx=20, pady=10, sticky='ew')
 
-        for i, (label, value) in enumerate(zip(labels, self.values[0:]), start=0):
-            lbl = ctk.CTkLabel(self, text=label)
-            lbl.grid(row=i, column=0, padx=20, pady=10, sticky='w')
+        # Entry für Food
+        food_label = ctk.CTkLabel(self, text=labels[1])
+        food_label.grid(row=1, column=0, padx=20, pady=10, sticky='w')
+        
+        self.food_entry = ctk.CTkEntry(self)
+        self.food_entry.insert(0, self.values[1])
+        self.food_entry.grid(row=1, column=1, padx=20, pady=10, sticky='ew')
 
-            entry = ctk.CTkEntry(self)
-            entry.grid(row=i, column=1, padx=20, pady=10, sticky='ew')
-            entry.insert(0, value)
-            self.entries.append(entry)
+        # Dropdown für Food Type
+        food_type_label = ctk.CTkLabel(self, text=labels[2])
+        food_type_label.grid(row=2, column=0, padx=20, pady=10, sticky='w')
+        
+        self.food_type_var = tk.StringVar(value=self.values[2])
+        food_type_dropdown = ctk.CTkOptionMenu(self, variable=self.food_type_var, values=[
+            "Rohkost", "Gekochtes", "Gegrilltes", "Gebratenes", "Gebäck", "Eingemachtes", 
+            "Zutat", "Fermentiertes", "Süßes", "Snack", "Getränk", "Suppe", "Salat", 
+            "Kalte Speise", "Warme Speise"
+        ])
+        food_type_dropdown.grid(row=2, column=1, padx=20, pady=10, sticky='ew')
 
+        # Entry für Ingredients
+        ingredients_label = ctk.CTkLabel(self, text=labels[3])
+        ingredients_label.grid(row=3, column=0, padx=20, pady=10, sticky='w')
+        
+        self.ingredients_entry = ctk.CTkEntry(self)
+        self.ingredients_entry.insert(0, self.values[3])
+        self.ingredients_entry.grid(row=3, column=1, padx=20, pady=10, sticky='ew')
+
+        # Entry für Amount
+        amount_label = ctk.CTkLabel(self, text=labels[4])
+        amount_label.grid(row=4, column=0, padx=20, pady=10, sticky='w')
+        
+        self.amount_entry = ctk.CTkEntry(self)
+        self.amount_entry.insert(0, self.values[4])
+        self.amount_entry.grid(row=4, column=1, padx=20, pady=10, sticky='ew')
+
+        # Dropdown für Unit
+        unit_label = ctk.CTkLabel(self, text=labels[5])
+        unit_label.grid(row=5, column=0, padx=20, pady=10, sticky='w')
+        
+        self.unit_var = tk.StringVar(value=self.values[5])
+        unit_dropdown = ctk.CTkOptionMenu(self, variable=self.unit_var, values=["kg", "g", "L", "ml"])
+        unit_dropdown.grid(row=5, column=1, padx=20, pady=10, sticky='ew')
+
+        # Entry für Expiry Date
+        expiry_label = ctk.CTkLabel(self, text=labels[6])
+        expiry_label.grid(row=6, column=0, padx=20, pady=10, sticky='w')
+        
+        self.expiry_entry = ctk.CTkEntry(self)
+        self.expiry_entry.insert(0, self.values[6])
+        self.expiry_entry.grid(row=6, column=1, padx=20, pady=10, sticky='ew')
+
+        # Entry für Notes
+        notes_label = ctk.CTkLabel(self, text=labels[7])
+        notes_label.grid(row=7, column=0, padx=20, pady=10, sticky='w')
+        
+        self.notes_entry = ctk.CTkEntry(self)
+        self.notes_entry.insert(0, self.values[7])
+        self.notes_entry.grid(row=7, column=1, padx=20, pady=10, sticky='ew')
+
+        # Save Button
         save_button = ctk.CTkButton(self, text="Speichern", command=self.save)
-        save_button.grid(row=len(labels)+1, column=0, columnspan=2, padx=20, pady=20)
+        save_button.grid(row=8, column=0, columnspan=2, padx=20, pady=20)
 
+        # Layout-Anpassungen
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
 
     def save(self):
-        new_values = [self.values[0]] + [entry.get() for entry in self.entries]  # Preserve the ID
+        # Validierung der Eingaben
+        if not self.validate_inputs():
+            return
+        
+        # Neue Werte sammeln
+        new_values = [
+            self.values[0],  # ID beibehalten
+            self.storage_var.get(),
+            self.food_entry.get(),
+            self.food_type_var.get(),
+            self.ingredients_entry.get(),
+            self.amount_entry.get(),
+            self.unit_var.get(),
+            self.expiry_entry.get(),
+            self.notes_entry.get()
+        ]
+        
+        # Callback aufrufen, um die Daten zu speichern
         self.callback(self.values, new_values)
         self.destroy()
+
+    def validate_inputs(self):
+        # Validierung des Expiry Date Formats
+        try:
+            datetime.datetime.strptime(self.expiry_entry.get(), '%Y-%m-%d')
+        except ValueError:
+            messagebox.showerror("Error", "Expiry date must be in the format YYYY-MM-DD.")
+            return False
+
+        # Weitere Validierungen können hier hinzugefügt werden
+        if not self.food_entry.get():
+            messagebox.showerror("Error", "Food name cannot be empty.")
+            return False
+
+        # Alle Eingaben sind gültig
+        return True
