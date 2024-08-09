@@ -27,6 +27,7 @@ class RecipeApp(ctk.CTkFrame):
         self.sheet_id = data["sheet_id"]
         self.credentials_file = os.path.join(script_dir, "credentials.json")
         self.db = GoogleSheetDB(self.sheet_id, self.credentials_file)
+        self.hits = []
 
         # Group names für die Auswahl
         self.group_names = self.account["groups"]
@@ -37,6 +38,7 @@ class RecipeApp(ctk.CTkFrame):
         self.ingredients = []
         self.selected_ingredients = {}
         self.images = []
+        self.selected_recipes = {}
 
         self.create_widgets()
         self.fill_storages()  # Storages laden und anzeigen
@@ -110,6 +112,10 @@ class RecipeApp(ctk.CTkFrame):
         self.search_button = ctk.CTkButton(self.input_frame, text="Search Recipes", command=self.on_search_button_click)
         self.search_button.grid(row=7, column=0, padx=10, pady=10, sticky="w")
 
+        # Neuer Button zum Speichern der ausgewählten Rezepte
+        self.save_button = ctk.CTkButton(self.input_frame, text="Save Selected Recipes", command=self.save_selected_recipes)
+        self.save_button.grid(row=8, column=0, padx=10, pady=10, sticky="w")
+
         self.output_frame = ctk.CTkFrame(self, width=600, height=600)
         self.output_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nswe")
 
@@ -126,6 +132,10 @@ class RecipeApp(ctk.CTkFrame):
 
         self.canvas_frame.bind("<Configure>", self.on_canvas_configure)
 
+        # Neuer Button zum Anzeigen der gespeicherten Rezepte
+        self.show_saved_button = ctk.CTkButton(self.input_frame, text="Show Saved Recipes", command=self.show_saved_recipes)
+        self.show_saved_button.grid(row=9, column=0, padx=10, pady=10, sticky="w")
+
         style = ttk.Style()
         style.configure("My.TSeparator", background="#2b2b2b")
 
@@ -140,8 +150,8 @@ class RecipeApp(ctk.CTkFrame):
             return
 
         try:
-            hits = search_recipes(selected, self.vegetarian_var.get())
-            self.display_results(hits)
+            self.hits = search_recipes(selected, self.vegetarian_var.get())  # Speichere die Suchergebnisse
+            self.display_results(self.hits)
         except Exception as e:
             self.display_message(str(e))
 
@@ -159,6 +169,7 @@ class RecipeApp(ctk.CTkFrame):
         for widget in self.canvas_frame.winfo_children():
             widget.destroy()
         self.images.clear()
+        self.selected_recipes.clear()
 
         if hits:
             translator = DeeplTranslator(api_key=deepL_key, source="en", target="de")
@@ -166,19 +177,24 @@ class RecipeApp(ctk.CTkFrame):
             for hit in hits:
                 recipe = hit['recipe']
 
+                var = tk.BooleanVar()
+                self.selected_recipes[recipe['label']] = var
+                check_button = ctk.CTkCheckBox(self.canvas_frame, text="", variable=var)
+                check_button.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
+
                 translated_label = translator.translate(recipe['label'])
                 label = ctk.CTkLabel(self.canvas_frame, text=f"Rezept: {translated_label}", bg_color="#2b2b2b")
-                label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
+                label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
                 y_position += 1
 
                 url_label = tk.Label(self.canvas_frame, text=recipe['url'], fg="#00bfff", cursor="hand2", background="#2b2b2b")
-                url_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
+                url_label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
                 url_label.bind("<Button-1>", self.open_url)
                 y_position += 1
 
                 translated_ingredients = translator.translate(", ".join(recipe['ingredientLines']))
                 ingredients_label = ctk.CTkLabel(self.canvas_frame, text=f"Zutaten: {translated_ingredients}", bg_color="#2b2b2b", wraplength=500)
-                ingredients_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
+                ingredients_label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
                 y_position += 1
 
                 image_url = recipe['image']
@@ -191,13 +207,91 @@ class RecipeApp(ctk.CTkFrame):
                 self.images.append(photo)
 
                 image_label = tk.Label(self.canvas_frame, image=photo, bg="#2b2b2b")
-                image_label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
+                image_label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
                 y_position += 1
 
                 separator = ttk.Separator(self.canvas_frame, orient='horizontal', style="My.TSeparator")
-                separator.grid(row=y_position, column=0, padx=10, pady=10, sticky="we")
+                separator.grid(row=y_position, column=0, columnspan=2, padx=10, pady=10, sticky="we")
                 y_position += 1
 
             self.canvas_frame.after(100, self.on_canvas_configure, None)
         else:
             self.display_message("Keine Rezepte gefunden.")
+
+    def save_selected_recipes(self):
+        selected_recipes = [label for label, var in self.selected_recipes.items() if var.get()]
+
+        if not selected_recipes:
+            self.display_message("Please select at least one recipe to save.")
+            return
+
+        try:
+            for recipe_name in selected_recipes:
+                # Hier sammeln wir die Daten des Rezepts, die gespeichert werden sollen
+                recipe_data = next((recipe for recipe in self.hits if recipe['recipe']['label'] == recipe_name), None)
+                if recipe_data:
+                    recipe = recipe_data['recipe']
+                    self.db.save_recipe(
+                        recipe_name=recipe_name,
+                        ingredients=recipe['ingredientLines'],
+                        url=recipe['url'],
+                        image_url=recipe['image'],
+                        group_name=self.group_name_var.get()
+                    )
+            self.display_message("Recipes saved successfully.")
+        except Exception as e:
+            self.display_message(f"Error saving recipes: {str(e)}")
+
+    def show_saved_recipes(self):
+        """Zeigt die gespeicherten Rezepte an."""
+        try:
+            # Gespeicherte Rezepte aus der Google Sheet Datenbank abrufen
+            saved_recipes = self.db.get_saved_recipes(self.group_name_var.get())
+
+            if not saved_recipes:
+                self.display_message("No saved recipes found.")
+                return
+
+            for widget in self.canvas_frame.winfo_children():
+                widget.destroy()
+            self.images.clear()
+
+            y_position = 0
+            for recipe in saved_recipes:
+                label = ctk.CTkLabel(self.canvas_frame, text=f"Recipe: {recipe['recipe_name']}", bg_color="#2b2b2b")
+                label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
+                y_position += 1
+
+                url_label = tk.Label(self.canvas_frame, text=recipe['url'], fg="#00bfff", cursor="hand2", background="#2b2b2b")
+                url_label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
+                url_label.bind("<Button-1>", self.open_url)
+                y_position += 1
+
+                ingredients = recipe['ingredients'].split(', ')  # Ingredients als Liste von Strings verarbeiten
+                ingredients_label = ctk.CTkLabel(self.canvas_frame, text=f"Ingredients: {', '.join(ingredients)}", bg_color="#2b2b2b", wraplength=500)
+                ingredients_label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
+                y_position += 1
+
+                image_url = recipe['image_url']
+                if image_url:
+                    image_response = requests.get(image_url)
+                    image_data = image_response.content
+                    image = Image.open(io.BytesIO(image_data))
+                    image.thumbnail((100, 100))
+                    photo = ImageTk.PhotoImage(image)
+
+                    self.images.append(photo)
+
+                    image_label = tk.Label(self.canvas_frame, image=photo, bg="#2b2b2b")
+                    image_label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
+                    y_position += 1
+
+                separator = ttk.Separator(self.canvas_frame, orient='horizontal', style="My.TSeparator")
+                separator.grid(row=y_position, column=0, columnspan=2, padx=10, pady=10, sticky="we")
+                y_position += 1
+
+            self.canvas_frame.after(100, self.on_canvas_configure, None)
+
+        except Exception as e:
+            self.display_message(f"Error loading saved recipes: {str(e)}")
+

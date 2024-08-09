@@ -1,30 +1,20 @@
 import gspread
-import os
-from tkinter import messagebox
 from oauth2client.service_account import ServiceAccountCredentials
 import uuid
 import hashlib
-
-
-# Google Sheet Setup
-sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
-#credentials_file = "D:/Uni/Codes/Reposetories/WDSKI_SOSE24-FamilySupplySystem/Version_2/credentials.json"
-#credentials_file = "credentials.json"
-
-script_dir = os.path.dirname(__file__)
-credentials_file = os.path.join(script_dir, "credentials.json")
-
+import os
 
 class GoogleSheetDB:
     def __init__(self, sheet_id, credentials_file):
-        self.sheet_id = sheet_id  # Speichern des sheet_id als Instanzvariable
+        self.sheet_id = sheet_id
         self.scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
         self.creds = ServiceAccountCredentials.from_json_keyfile_name(credentials_file, self.scope)
         self.client = gspread.authorize(self.creds)
-        self.group_sheet = self.client.open_by_key(self.sheet_id).worksheet("FamilyGroups")  # All Groups
-        self.user_sheet = self.client.open_by_key(self.sheet_id).worksheet("Users")  # All Users
+        self.group_sheet = self.client.open_by_key(self.sheet_id).worksheet("FamilyGroups")
+        self.user_sheet = self.client.open_by_key(self.sheet_id).worksheet("Users")
+        self.recipes_sheet = self.client.open_by_key(self.sheet_id).worksheet("Recipes")
 
-    def get_all_group_names(self):      
+    def get_all_group_names(self):
         records = self.group_sheet.get_all_records()
         return [record['GroupName'] for record in records]
 
@@ -32,12 +22,10 @@ class GoogleSheetDB:
         records = self.group_sheet.get_all_records()
         storages = [record['Storage_Names'] for record in records if record['GroupName'] == fam_name]
         if storages:
-            # Split the single string into parts and strip any leading/trailing whitespace from each part
             return [item.strip() for item in storages[0].split(',')]
         return []
 
     def get_storage_names(self, group_name):
-        """Returns a list of unique storage names from the specified group."""
         sheet_name = f"Storage_{group_name}"
         sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
         records = sheet.get_all_records()
@@ -47,15 +35,7 @@ class GoogleSheetDB:
         sheet_name = f"Storage_{group_name}"
         sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
         records = sheet.get_all_records()
-
-        # Filtern der Einträge nach 'Storage_Name' und 'food_type' "Rohkost"
-        filtered_items = [
-            {'name': record['food'], 'food_type': record['food_type']}
-            for record in records
-            if record['Storage_Name'] == storage_name and record['food_type'] == 'Rohkost'
-        ]
-
-        return filtered_items
+        return [{'name': record['food'], 'food_type': record['food_type']} for record in records if record['Storage_Name'] == storage_name and record['food_type'] == 'Rohkost']
 
     def group_name_exists(self, group_name):
         records = self.group_sheet.get_all_records()
@@ -63,8 +43,6 @@ class GoogleSheetDB:
 
     def add_family_group(self, group_name, group_password, members=[], storages=[]):
         self.group_sheet.append_row([group_name, group_password, ','.join(members), ','.join(storages)])
-        
-        # Erstelle ein neues Arbeitsblatt mit Kopfzeilen
         new_sheet = self.client.open_by_key(self.sheet_id).add_worksheet(title=f"Storage_{group_name}", rows="1000", cols="10")
         headers = ['id', 'Storage_Name', 'food', 'food_type', 'food_ingredients', 'food_amount', 'amount_type', 'expire_day', 'sonst_info']
         new_sheet.append_row(headers)
@@ -96,21 +74,18 @@ class GoogleSheetDB:
         return None
 
     def add_food_item(self, group_name, storage_name, food, food_type, food_ingredients, food_amount, amount_type, expire_day, sonst_info):
-        item_id = str(uuid.uuid4())  # Generate a unique identifier
+        item_id = str(uuid.uuid4())
         sheet_name = f"Storage_{group_name}"
         sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
-        sheet.append_row([
-            item_id, storage_name, food, 
-            food_type, food_ingredients, food_amount, 
-            amount_type, expire_day, sonst_info
-        ])
-    
+        sheet.append_row([item_id, storage_name, food, food_type, food_ingredients, food_amount, amount_type, expire_day, sonst_info])
+
     def update_food_item(self, entry_id, group_name, new_values):
         sheet_name = f"Storage_{group_name}"
-        sheet = self.client.open_by_key(sheet_id).worksheet(sheet_name)
+        sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
         cell = sheet.find(entry_id)
         if cell:
-            row = cell
+            row = cell.row
+            sheet.update(f"A{row}:I{row}", [new_values])
 
     def get_storage_items(self, group_name, storage_name):
         sheet_name = f"Storage_{group_name}"
@@ -133,3 +108,11 @@ class GoogleSheetDB:
         if cell:
             sheet.delete_rows(cell.row)
 
+    def save_recipe(self, recipe_name, ingredients, url, image_url, group_name):
+        recipe_id = str(uuid.uuid4())
+        ingredients_str = ', '.join(ingredients) if isinstance(ingredients, list) else ingredients
+        self.recipes_sheet.append_row([recipe_id, recipe_name, ingredients_str, url, image_url, group_name])
+
+    def get_saved_recipes(self, group_name):
+        records = self.recipes_sheet.get_all_records()
+        return [record for record in records if record['group_name'] == group_name]
