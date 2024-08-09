@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
+from tkinter import messagebox
 from family_group_creator import FamilyGroupApp
 from food_item_creator import FoodItemApp
 from google_sheet_db import GoogleSheetDB
@@ -55,6 +56,12 @@ class Menu(ctk.CTk):
         
         self.view_items_button = ctk.CTkButton(self.menu_frame, text="View Food Items", command=self.show_view_food_items)
         self.view_items_button.grid(row=2, column=0, padx=20, pady=10)
+
+        self.view_recipes_button = ctk.CTkButton(self.menu_frame, text="View Recipes", command=self.show_view_recipes)
+        self.view_recipes_button.grid(row=4, column=0, padx=20, pady=10)
+
+        self.view_shopping_list_button = ctk.CTkButton(self.menu_frame, text="View Shopping List", command=self.show_view_shopping_list)
+        self.view_shopping_list_button.grid(row=5, column=0, padx=20, pady=10)
         
         #TODO Sollte bald alles in einem unter-Menü ansteuerbar sein:
         
@@ -100,6 +107,32 @@ class Menu(ctk.CTk):
                 widget.destroy()
             food_display_app = FoodDisplayApp(self.main_frame, sheet_id, credentials_file, self.Account)
             food_display_app.pack(fill="both", expand=True)
+        else:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+            label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+            label.pack(pady=200)
+
+    def show_view_recipes(self):
+        if self.Account["logged_in"]:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+                # Dummy edit account function
+                messagebox.showinfo("Update", "Coming soon!")
+        
+        else:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+            label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+            label.pack(pady=200)
+
+    def show_view_shopping_list(self):
+        if self.Account["logged_in"]:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+                # Dummy edit account function
+                messagebox.showinfo("Update", "Coming soon!")
+        
         else:
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
