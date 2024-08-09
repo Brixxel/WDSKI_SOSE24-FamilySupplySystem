@@ -98,8 +98,8 @@ class GoogleSheetDB:
         sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
         records = sheet.get_all_records()
         return [(record['id'], record['Storage_Name'], record['food'], record['food_type'],
-                 record['food_ingredients'], record['food_amount'], record['amount_type'],
-                 record['expire_day'], record['sonst_info']) for record in records]
+                record['food_ingredients'], record['food_amount'], record['amount_type'],
+                record['expire_day'], record['sonst_info']) for record in records]
 
     def delete_entry(self, entry_id, group_name):
         sheet_name = f"Storage_{group_name}"

@@ -11,7 +11,7 @@ from deep_translator import DeeplTranslator
 import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from google_sheet_db import GoogleSheetDB  # Stelle sicher, dass diese Klasse importiert ist
+from google_sheet_db import GoogleSheetDB  
 
 script_dir = os.path.dirname(__file__)
 credentials_file = os.path.join(script_dir, "credentials.json")
@@ -29,7 +29,7 @@ class RecipeApp(ctk.CTkFrame):
         self.db = GoogleSheetDB(self.sheet_id, self.credentials_file)
         self.hits = []
 
-        # Group names für die Auswahl
+
         self.group_names = self.account["groups"]
 
         # Variablen für die gewählte Gruppe und die Zutaten
@@ -41,31 +41,27 @@ class RecipeApp(ctk.CTkFrame):
         self.selected_recipes = {}
 
         self.create_widgets()
-        self.fill_storages()  # Storages laden und anzeigen
+        self.fill_storages() 
 
     def fill_storages(self, *args):
-        """Lädt die Storages aus dem Google Sheet für die ausgewählte Gruppe"""
+
         selected_group = self.group_name_var.get()
         self.storages = self.db.get_storage_names(selected_group)
 
-        # UI-Elemente für Storage-Auswahl aktualisieren
+        # UI-Elemente für Storage-Auswahl aktualisieren; damit Scrollbar geladen wird
         self.dropdown_storage_name.configure(values=self.storages)
         if self.storages:
             self.storage_name_var.set(self.storages[0])
             self.fill_ingredients()
 
     def fill_ingredients(self, *args):
-        """Lädt die Zutaten aus dem Google Sheet für den ausgewählten Storage und filtert nach Rohkost."""
         selected_group = self.group_name_var.get()
         selected_storage = self.storage_name_var.get()
         
-        # Abrufen der Lebensmittel aus der Google Sheet Datenbank
         all_ingredients = self.db.get_food_items_from_storage(selected_group, selected_storage)
         
-        # Filtern nach food_type 'Rohkost'
         self.ingredients = [item['name'] for item in all_ingredients if item['food_type'] == 'Rohkost']
 
-        # UI-Elemente für Zutaten aktualisieren
         for widget in self.check_buttons_frame.winfo_children():
             widget.destroy()
         self.selected_ingredients.clear()
@@ -88,14 +84,14 @@ class RecipeApp(ctk.CTkFrame):
         self.label = ctk.CTkLabel(self.input_frame, text="Select family group:")
         self.label.grid(row=0, column=0, padx=10, pady=(10, 5), sticky="w")
 
-        # Dropdown-Menü für die Gruppenwahl
+
         self.dropdown_group_name = ctk.CTkOptionMenu(self.input_frame, variable=self.group_name_var, values=self.group_names, command=self.fill_storages)
         self.dropdown_group_name.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
         self.label = ctk.CTkLabel(self.input_frame, text="Select storage:")
         self.label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
 
-        # Dropdown-Menü für die Storage-Auswahl
+
         self.dropdown_storage_name = ctk.CTkOptionMenu(self.input_frame, variable=self.storage_name_var, command=self.fill_ingredients)
         self.dropdown_storage_name.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
 
@@ -112,7 +108,6 @@ class RecipeApp(ctk.CTkFrame):
         self.search_button = ctk.CTkButton(self.input_frame, text="Search Recipes", command=self.on_search_button_click)
         self.search_button.grid(row=7, column=0, padx=10, pady=10, sticky="w")
 
-        # Neuer Button zum Speichern der ausgewählten Rezepte
         self.save_button = ctk.CTkButton(self.input_frame, text="Save Selected Recipes", command=self.save_selected_recipes)
         self.save_button.grid(row=8, column=0, padx=10, pady=10, sticky="w")
 
@@ -132,7 +127,6 @@ class RecipeApp(ctk.CTkFrame):
 
         self.canvas_frame.bind("<Configure>", self.on_canvas_configure)
 
-        # Neuer Button zum Anzeigen der gespeicherten Rezepte
         self.show_saved_button = ctk.CTkButton(self.input_frame, text="Show Saved Recipes", command=self.show_saved_recipes)
         self.show_saved_button.grid(row=9, column=0, padx=10, pady=10, sticky="w")
 
@@ -150,7 +144,7 @@ class RecipeApp(ctk.CTkFrame):
             return
 
         try:
-            self.hits = search_recipes(selected, self.vegetarian_var.get())  # Speichere die Suchergebnisse
+            self.hits = search_recipes(selected, self.vegetarian_var.get())  
             self.display_results(self.hits)
         except Exception as e:
             self.display_message(str(e))
@@ -243,22 +237,23 @@ class RecipeApp(ctk.CTkFrame):
             self.display_message(f"Error saving recipes: {str(e)}")
 
     def show_saved_recipes(self):
-        """Zeigt die gespeicherten Rezepte an."""
         try:
-            # Gespeicherte Rezepte aus der Google Sheet Datenbank abrufen
             saved_recipes = self.db.get_saved_recipes(self.group_name_var.get())
 
             if not saved_recipes:
-                self.display_message("No saved recipes found.")
+                self.display_message("Keine gespeicherten Rezepte gefunden.")
                 return
 
             for widget in self.canvas_frame.winfo_children():
                 widget.destroy()
             self.images.clear()
 
+            translator = DeeplTranslator(api_key=deepL_key, source="en", target="de")
             y_position = 0
             for recipe in saved_recipes:
-                label = ctk.CTkLabel(self.canvas_frame, text=f"Recipe: {recipe['recipe_name']}", bg_color="#2b2b2b")
+
+                translated_recipe_name = translator.translate(recipe['recipe_name'])
+                label = ctk.CTkLabel(self.canvas_frame, text=f"Rezept: {translated_recipe_name}", bg_color="#2b2b2b")
                 label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
                 y_position += 1
 
@@ -267,8 +262,8 @@ class RecipeApp(ctk.CTkFrame):
                 url_label.bind("<Button-1>", self.open_url)
                 y_position += 1
 
-                ingredients = recipe['ingredients'].split(', ')  # Ingredients als Liste von Strings verarbeiten
-                ingredients_label = ctk.CTkLabel(self.canvas_frame, text=f"Ingredients: {', '.join(ingredients)}", bg_color="#2b2b2b", wraplength=500)
+                translated_ingredients = translator.translate(", ".join(recipe['ingredients'].split(', ')))
+                ingredients_label = ctk.CTkLabel(self.canvas_frame, text=f"Zutaten: {translated_ingredients}", bg_color="#2b2b2b", wraplength=500)
                 ingredients_label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
                 y_position += 1
 
@@ -293,5 +288,5 @@ class RecipeApp(ctk.CTkFrame):
             self.canvas_frame.after(100, self.on_canvas_configure, None)
 
         except Exception as e:
-            self.display_message(f"Error loading saved recipes: {str(e)}")
+            self.display_message(f"Fehler beim Laden der gespeicherten Rezepte: {str(e)}")
 
