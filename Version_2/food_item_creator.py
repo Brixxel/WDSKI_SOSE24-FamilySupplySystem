@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import messagebox
 import customtkinter as ctk
 from google_sheet_db import GoogleSheetDB
+from tkcalendar import DateEntry
+import re
 
 class FoodItemApp(ctk.CTkFrame):
 
@@ -83,7 +85,7 @@ class FoodItemApp(ctk.CTkFrame):
         self.label_expire_day = ctk.CTkLabel(self, text="Ablaufdatum")
         self.label_expire_day.grid(row=8, column=0, padx=20, pady=10, sticky='w')
 
-        self.entry_expire_day = ctk.CTkEntry(self)
+        self.entry_expire_day = DateEntry(self, date_pattern="yyyy-mm-dd")
         self.entry_expire_day.grid(row=8, column=1, padx=20, pady=10, sticky='ew')
 
         self.label_sonst_info = ctk.CTkLabel(self, text="weitere Notizen")
@@ -112,7 +114,6 @@ class FoodItemApp(ctk.CTkFrame):
     def add_food_item(self):
         group_name = self.group_name_var.get()
         storage_name = self.storage_name_var.get()
-        # location = self.entry_location.get()
         food = self.entry_food.get()
         food_type = self.entry_food_type.get()
         food_ingredients = self.entry_food_ingredients.get()
@@ -121,8 +122,21 @@ class FoodItemApp(ctk.CTkFrame):
         expire_day = self.entry_expire_day.get()
         sonst_info = self.entry_sonst_info.get()
 
+        # Überprüfung der Eingaben:
         if not all([group_name, storage_name, food, food_type, food_ingredients, food_amount, amount_type, expire_day]):
             messagebox.showerror("Error", "All fields must be filled!")
+            return
+
+        # Überprüfung des Formats der Menge (float):
+        try:
+            food_amount = float(food_amount)
+        except ValueError:
+            messagebox.showerror("Error", "Amount must be a number!")
+            return
+
+        # Überprüfung des Datumsformats:
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", expire_day):
+            messagebox.showerror("Error", "Date must be in format YYYY-MM-DD!")
             return
 
         food_item = [group_name, storage_name, food, food_type, food_ingredients, food_amount, amount_type, expire_day, sonst_info]
@@ -135,14 +149,15 @@ class FoodItemApp(ctk.CTkFrame):
         messagebox.showinfo("Success", "Food Item added successfully!")
         self.clear_entries()
 
+
     def clear_entries(self):
-        self.group_name_var.set("")
+        #self.group_name_var.set("")
         self.storage_name_var.set("")
-        #self.entry_location.delete(0, tk.END)
         self.entry_food.delete(0, tk.END)
-        self.entry_food_type.delete(0, tk.END)
+        self.entry_food_type.set("")
         self.entry_food_ingredients.delete(0, tk.END)
         self.entry_food_amount.delete(0, tk.END)
-        self.entry_amount_type.delete(0, tk.END)
-        self.entry_expire_day.delete(0, tk.END)
+        self.entry_amount_type.set("")
+        self.entry_expire_day.set_date("")  # Setzt das Datumsauswahlfeld zurück
         self.entry_sonst_info.delete(0, tk.END)
+
