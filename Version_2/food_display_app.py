@@ -92,13 +92,11 @@ class FoodDisplayApp(ctk.CTkFrame):
         self.dropdown_group_name = ctk.CTkOptionMenu(self.filter_frame, variable=self.group_name_var, values=self.group_names, command=self.fill_table)
         self.dropdown_group_name.grid(row=0, column=0, columnspan=2, padx=20, pady=10, sticky='ew')
         
-
-
         self.sort_button = ctk.CTkButton(self.filter_frame, text="Sort by Date", command=self.sort_by_date)
         self.sort_button.grid(row =1,  column = 0, padx=5, pady=5)
 
-        self.filter_button = ctk.CTkButton(self.filter_frame, text="Filter", command=self.apply_filter)
-        self.filter_button.grid(row =1,  column = 1, padx=5, pady=5)
+        self.filter_button = ctk.CTkButton(self.filter_frame, text="Filter", command=self.show_filter_window)
+        self.filter_button.grid(row =1,  column = 1, columnspan=2, padx=20, pady=20)
         
         # Frame für Treeview und Scrollbars erstellen
         self.table_frame = ctk.CTkFrame(self)
@@ -186,9 +184,120 @@ class FoodDisplayApp(ctk.CTkFrame):
         self.tree.delete(*self.tree.get_children())  # Löscht den aktuellen Inhalt der Tabelle
         for row in sorted_data:
             self.tree.insert("", "end", values=row[1:])  # Füge die sortierten Daten ein (ignoriere die ID-Spalte)
-    
+
+ ### Methoden zum Filtern der Einträge ###
+
     def apply_filter(self):
-        pass
+        # Ausgewählte Storages und Food Types sammeln
+        selected_group = self.group_name_var.get()
+        selected_storages = [storage for storage, var in self.selected_storages if var.get()]
+        selected_food_types = [food_type for food_type, var in self.selected_food_types if var.get()]
+
+        if not selected_storages:
+            messagebox.showerror("Error", "Please select at least one storage.")
+            return
+
+        if not selected_food_types:
+            messagebox.showerror("Error", "Please select at least one food type.")
+            return
+
+        # Filtern der Lebensmittel basierend auf den ausgewählten Kriterien
+        filtered_items = self.db.get_filtered_food_items(selected_group, selected_storages, selected_food_types)
+
+        # Update der Treeview-Tabelle mit den gefilterten Items
+        self.update_ui_with_filtered_items(filtered_items)
+
+        messagebox.showinfo("Success", "Filter applied successfully!")
+
+
+    def update_ui_with_filtered_items(self, items):
+        # Leere die Tabelle
+        self.tree.delete(*self.tree.get_children())
+
+        if not items:
+            # Optional: Eine Nachricht in die Tabelle einfügen, wenn keine Daten vorhanden sind
+            self.tree.insert("", "end", values=("No items to display",) * len(self.tree["columns"]))
+            return
+
+        # Daten in die Tabelle einfügen
+        for item in items:
+            self.tree.insert("", "end", values=item[1:])  # Ignoriere die ID-Spalte beim Einfügen
+
+        self.adjust_column_widths()  # Optional: Passe die Spaltenbreiten an
+
+
+    def disable_filter(self):
+        # Rücksetzung des Filters, um alle Einträge anzuzeigen
+        all_items = self.db.get_all_data(self.group_name_var.get())
+        
+        # Update der Treeview-Tabelle mit allen Items
+        self.update_ui_with_filtered_items(all_items)
+
+        messagebox.showinfo("Success", "Filter disabled!")
+
+
+    def show_filter_window(self):
+        # Erstelle ein neues Fenster
+        filter_window = ctk.CTkToplevel(self)
+        filter_window.title("Filter Items")
+        
+        # Erstelle die Liste der Storages
+        storage_label = ctk.CTkLabel(filter_window, text="Select Storages:")
+        storage_label.pack(padx=10, pady=(10, 0))
+
+        self.selected_storages = []
+        storages = self.db.get_all_storages_from_family(self.group_name_var.get())
+
+        def toggle_all_storages():
+            select_all = all_var_storages.get()
+            for var in self.storage_vars:
+                var.set(select_all)
+
+        all_var_storages = tk.BooleanVar(value=True)
+        all_check_storages = ctk.CTkCheckBox(filter_window, text="All Storages", variable=all_var_storages, command=toggle_all_storages)
+        all_check_storages.pack(anchor='w', padx=10, pady=2)
+
+        self.storage_vars = [tk.BooleanVar(value=True) for _ in storages]
+
+        for i, storage in enumerate(storages):
+            var = tk.BooleanVar(value=True)
+            chk = ctk.CTkCheckBox(filter_window, text=storage, variable=self.storage_vars[i])
+            chk.pack(anchor='w', padx=10, pady=2)
+            self.selected_storages.append((storage, self.storage_vars[i]))
+
+        # Erstelle die Liste der Food-Types
+        food_type_label = ctk.CTkLabel(filter_window, text="Select Food Types:")
+        food_type_label.pack(padx=10, pady=(10, 0))
+
+        Food_Types = ["Rohkost", "Gekochtes", "Gegrilltes", "Gebratenes", "Gebäck", "Eingemachtes", 
+                    "Zutat", "Fermentiertes", "Süßes", "Snack", "Getränk", "Suppe", "Salat", 
+                    "Kalte Speise", "Warme Speise"]
+
+        def toggle_all_food_types():
+            select_all = all_var_food_types.get()
+            for var in self.food_type_vars:
+                var.set(select_all)
+
+        all_var_food_types = tk.BooleanVar(value=True)
+        all_check_food_types = ctk.CTkCheckBox(filter_window, text="All Food Types", variable=all_var_food_types, command=toggle_all_food_types)
+        all_check_food_types.pack(anchor='w', padx=10, pady=2)
+
+        self.food_type_vars = [tk.BooleanVar(value=True) for _ in Food_Types]
+
+        self.selected_food_types = []
+        for i, food_type in enumerate(Food_Types):
+            var = tk.BooleanVar(value=True)
+            chk = ctk.CTkCheckBox(filter_window, text=food_type, variable=self.food_type_vars[i])
+            chk.pack(anchor='w', padx=10, pady=2)
+            self.selected_food_types.append((food_type, self.food_type_vars[i]))
+
+        # Filter-Button
+        apply_filter_button = ctk.CTkButton(filter_window, text="Apply Filter", command=self.apply_filter)
+        apply_filter_button.pack(pady=(10, 5))
+
+        # Filter deaktivieren
+        disable_filter_button = ctk.CTkButton(filter_window, text="Disable Filter", command=self.disable_filter)
+        disable_filter_button.pack(pady=5)
 
 
 

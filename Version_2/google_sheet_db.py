@@ -121,6 +121,20 @@ class GoogleSheetDB:
         return [(record['id'], record['Storage_Name'], record['food'], record['food_type'],
                  record['food_ingredients'], record['food_amount'], record['amount_type'],
                  record['expire_day'], record['sonst_info']) for record in records]
+    
+    def get_filtered_food_items(self, group_name, selected_storages, selected_food_types):
+        # Alle Lebensmittel für die Gruppe abrufen
+        all_items = self.get_all_data(group_name)
+
+        # Filtern nach Storage
+        if selected_storages:
+            all_items = [item for item in all_items if item[1] in selected_storages]
+
+        # Filtern nach Food-Type
+        if selected_food_types:
+            all_items = [item for item in all_items if item[3] in selected_food_types]
+
+        return all_items
 
     def delete_entry(self, entry_id, group_name):
         sheet_name = f"Storage_{group_name}"
