@@ -104,7 +104,9 @@ class GoogleSheetDB:
         sheet = self.client.open_by_key(sheet_id).worksheet(sheet_name)
         cell = sheet.find(entry_id)
         if cell:
-            row = cell
+            row = cell.row
+            for col, value in enumerate(new_values, start=2):  # assuming id is in the first column
+                sheet.update_cell(row, col, value)
 
     def get_storage_items(self, group_name, storage_name):
         sheet_name = f"Storage_{group_name}"

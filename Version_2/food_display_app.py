@@ -175,7 +175,17 @@ class FoodDisplayApp(ctk.CTkFrame):
             self.tree.delete(selected_item)
             
     def sort_by_date(self):
-        pass
+        selected_group = self.group_name_var.get()
+        data = self.db.get_all_data(selected_group)
+        
+        # Sortiere die Daten nach dem Ablaufdatum ("expire_day").
+        # Wir gehen davon aus, dass das Datum im Format 'YYYY-MM-DD' vorliegt. 
+        sorted_data = sorted(data, key=lambda x: x[7])  # Index 7 entspricht 'expire_day' in der Datenstruktur
+        
+        # Aktualisiere die Tabelle mit den sortierten Daten
+        self.tree.delete(*self.tree.get_children())  # Löscht den aktuellen Inhalt der Tabelle
+        for row in sorted_data:
+            self.tree.insert("", "end", values=row[1:])  # Füge die sortierten Daten ein (ignoriere die ID-Spalte)
     
     def apply_filter(self):
         pass
