@@ -57,7 +57,7 @@ class RecipeApp(ctk.CTkFrame):
         selected_storage = self.storage_name_var.get()
 
         # Definiere die gewünschten food_types
-        desired_food_types = ['Rohkost', 'Zutaten']  # Hier kannst du die gewünschten food_types hinzufügen
+        desired_food_types = ['Rohkost', 'Zutat']  # Hier kannst du die gewünschten food_types hinzufügen
 
         # Rufe Zutaten ab, die zu den gewünschten food_types gehören
         all_ingredients = self.db.get_food_items_from_storage(selected_group, selected_storage, desired_food_types)
