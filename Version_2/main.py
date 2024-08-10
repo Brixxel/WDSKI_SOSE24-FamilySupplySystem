@@ -1,5 +1,6 @@
 import os
 import tkinter as tk
+from tkinter import *
 from tkinter import ttk
 import customtkinter as ctk
 from tkinter import messagebox
@@ -18,6 +19,7 @@ ctk.set_default_color_theme("green")
 sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
 script_dir = os.path.dirname(__file__)
 credentials_file = os.path.join(script_dir, "credentials.json")
+
 
 
 class Menu(ctk.CTk):
@@ -188,4 +190,9 @@ class Menu(ctk.CTk):
 
 if __name__ == '__main__':
     app = Menu()
+    icon_path = r"C:\Users\gmgru\OneDrive\Dokumente\GitHub\WDSKI_SOSE24-FamilySupplySystem\Version_2\kühlschrank.ico"
+    if os.path.exists(icon_path):
+        app.iconbitmap(icon_path)
+    else:
+        print("Icon file not found!")
     app.mainloop()
