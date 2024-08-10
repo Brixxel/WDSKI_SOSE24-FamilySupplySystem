@@ -39,7 +39,7 @@ class Menu(ctk.CTk):
         # }
         
         self.title("Family Supply System")
-        self.geometry("800x600")
+        self.geometry("1100x600")
         self.create_widgets()
 
     def create_widgets(self):
