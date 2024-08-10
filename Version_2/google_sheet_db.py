@@ -31,11 +31,20 @@ class GoogleSheetDB:
         records = sheet.get_all_records()
         return list(set(record['Storage_Name'] for record in records if record['Storage_Name']))
 
-    def get_food_items_from_storage(self, group_name, storage_name):
+    def get_food_items_from_storage(self, group_name, storage_name, food_types=None):
         sheet_name = f"Storage_{group_name}"
         sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
         records = sheet.get_all_records()
-        return [{'name': record['food'], 'food_type': record['food_type']} for record in records if record['Storage_Name'] == storage_name and record['food_type'] == 'Rohkost']
+
+        if food_types:
+            return [{'name': record['food'], 'food_type': record['food_type']} 
+                    for record in records 
+                    if record['Storage_Name'] == storage_name and record['food_type'] in food_types]
+        else:
+            return [{'name': record['food'], 'food_type': record['food_type']} 
+                    for record in records 
+                    if record['Storage_Name'] == storage_name]
+
 
     def compare_group_password(self, group_name, hashed_password):
         records = self.group_sheet.get_all_records()
@@ -53,7 +62,7 @@ class GoogleSheetDB:
         self.group_sheet.append_row([group_name, group_password, ','.join(members), num_storages])
         
         # Create a new sheet with headers
-        new_sheet = self.client.open_by_key(sheet_id).add_worksheet(title=f"Storage_{group_name}", rows="1000", cols="10")
+        new_sheet = self.client.open_by_key("sheet_id").add_worksheet(title=f"Storage_{group_name}", rows="1000", cols="10")
         headers = ['id', 'Storage_Name', 'location', 'food', 'food_type', 'food_ingredients', 'food_amount', 'amount_type', 'expire_day', 'sonst_info']
         new_sheet.append_row(headers)
 
@@ -140,7 +149,7 @@ class GoogleSheetDB:
                 return record
         return None
 
-   
+
     ## Editing Funktionen
 
 
@@ -174,7 +183,7 @@ class GoogleSheetDB:
     
     
     ### Funktionen für den Umgang mit den Essensdaten:
- 
+
     def add_food_item(self, group_name, storage_name, food, food_type, food_ingredients, food_amount, amount_type, expire_day, sonst_info):
         item_id = str(uuid.uuid4())
         sheet_name = f"Storage_{group_name}"
@@ -203,8 +212,8 @@ class GoogleSheetDB:
         sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
         records = sheet.get_all_records()
         return [(record['id'], record['Storage_Name'], record['food'], record['food_type'],
-                 record['food_ingredients'], record['food_amount'], record['amount_type'],
-                 record['expire_day'], record['sonst_info']) for record in records]
+                record['food_ingredients'], record['food_amount'], record['amount_type'],
+                record['expire_day'], record['sonst_info']) for record in records]
     
     def get_filtered_food_items(self, group_name, selected_storages, selected_food_types):
         # Alle Lebensmittel für die Gruppe abrufen

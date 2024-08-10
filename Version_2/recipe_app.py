@@ -9,8 +9,6 @@ import webbrowser
 from api_module import search_recipes
 from deep_translator import DeeplTranslator
 import json
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 from google_sheet_db import GoogleSheetDB  
 
 script_dir = os.path.dirname(__file__)
@@ -57,11 +55,16 @@ class RecipeApp(ctk.CTkFrame):
     def fill_ingredients(self, *args):
         selected_group = self.group_name_var.get()
         selected_storage = self.storage_name_var.get()
-        
-        all_ingredients = self.db.get_food_items_from_storage(selected_group, selected_storage)
-        
-        self.ingredients = [item['name'] for item in all_ingredients if item['food_type'] == 'Rohkost']
 
+        # Definiere die gewünschten food_types
+        desired_food_types = ['Rohkost', 'Zutaten']  # Hier kannst du die gewünschten food_types hinzufügen
+
+        # Rufe Zutaten ab, die zu den gewünschten food_types gehören
+        all_ingredients = self.db.get_food_items_from_storage(selected_group, selected_storage, desired_food_types)
+
+        self.ingredients = [item['name'] for item in all_ingredients]
+
+        # Lösche die aktuellen UI-Elemente und bereite sie für neue Zutaten vor
         for widget in self.check_buttons_frame.winfo_children():
             widget.destroy()
         self.selected_ingredients.clear()
@@ -71,6 +74,7 @@ class RecipeApp(ctk.CTkFrame):
             self.selected_ingredients[ingredient] = var
             check_button = ctk.CTkCheckBox(self.check_buttons_frame, text=ingredient, variable=var)
             check_button.pack(anchor='w')
+
 
 
     def create_widgets(self):
@@ -269,17 +273,21 @@ class RecipeApp(ctk.CTkFrame):
 
                 image_url = recipe['image_url']
                 if image_url:
-                    image_response = requests.get(image_url)
-                    image_data = image_response.content
-                    image = Image.open(io.BytesIO(image_data))
-                    image.thumbnail((100, 100))
-                    photo = ImageTk.PhotoImage(image)
+                    try:
+                        image_response = requests.get(image_url)
+                        image_data = image_response.content
+                        image = Image.open(io.BytesIO(image_data))
+                        image.thumbnail((100, 100))
+                        photo = ImageTk.PhotoImage(image)
 
-                    self.images.append(photo)
+                        self.images.append(photo)
 
-                    image_label = tk.Label(self.canvas_frame, image=photo, bg="#2b2b2b")
-                    image_label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
-                    y_position += 1
+                        image_label = tk.Label(self.canvas_frame, image=photo, bg="#2b2b2b")
+                        image_label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
+                        y_position += 1
+                    except Exception as e:
+                        pass
+                        # Bild wird nicht angezeigt, Fehler wird ignoriert
 
                 separator = ttk.Separator(self.canvas_frame, orient='horizontal', style="My.TSeparator")
                 separator.grid(row=y_position, column=0, columnspan=2, padx=10, pady=10, sticky="we")

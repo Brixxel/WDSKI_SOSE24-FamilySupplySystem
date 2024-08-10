@@ -31,7 +31,7 @@ class Menu(ctk.CTk):
             "name": "DerRegler",
             "groups": ["dieReglers", "DieWebers"]
         }
- 
+
         # self.Account = {
         #     "logged_in" :  False,
         #     "name" : "",
