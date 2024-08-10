@@ -244,3 +244,15 @@ class GoogleSheetDB:
     def get_saved_recipes(self, group_name):
         records = self.recipes_sheet.get_all_records()
         return [record for record in records if record['group_name'] == group_name]
+    
+    def delete_recipe(self, recipe_name, group_name):
+        sheet = self.recipes_sheet
+        cell = sheet.find(recipe_name)
+        
+        if cell and sheet.cell(cell.row, 6).value == group_name:  
+            sheet.delete_rows(cell.row)  
+        else:
+            raise Exception(f"Recipe '{recipe_name}' not found or does not belong to the group '{group_name}'.")
+
+
+

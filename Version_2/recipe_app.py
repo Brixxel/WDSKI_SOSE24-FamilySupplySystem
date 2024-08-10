@@ -88,13 +88,11 @@ class RecipeApp(ctk.CTkFrame):
         self.label = ctk.CTkLabel(self.input_frame, text="Select family group:")
         self.label.grid(row=0, column=0, padx=10, pady=(10, 5), sticky="w")
 
-
         self.dropdown_group_name = ctk.CTkOptionMenu(self.input_frame, variable=self.group_name_var, values=self.group_names, command=self.fill_storages)
         self.dropdown_group_name.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
         self.label = ctk.CTkLabel(self.input_frame, text="Select storage:")
         self.label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
-
 
         self.dropdown_storage_name = ctk.CTkOptionMenu(self.input_frame, variable=self.storage_name_var, command=self.fill_ingredients)
         self.dropdown_storage_name.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
@@ -115,6 +113,14 @@ class RecipeApp(ctk.CTkFrame):
         self.save_button = ctk.CTkButton(self.input_frame, text="Save Selected Recipes", command=self.save_selected_recipes)
         self.save_button.grid(row=8, column=0, padx=10, pady=10, sticky="w")
 
+        # Show Saved Recipes Button jetzt vor dem Delete Button
+        self.show_saved_button = ctk.CTkButton(self.input_frame, text="Show Saved Recipes", command=self.show_saved_recipes)
+        self.show_saved_button.grid(row=9, column=0, padx=10, pady=10, sticky="w")
+
+        # Delete Selected Recipes Button jetzt nach dem Show Button
+        self.delete_button = ctk.CTkButton(self.input_frame, text="Delete Selected Recipes", command=self.delete_selected_recipes)
+        self.delete_button.grid(row=10, column=0, padx=10, pady=10, sticky="w")
+
         self.output_frame = ctk.CTkFrame(self, width=600, height=600)
         self.output_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nswe")
 
@@ -131,11 +137,10 @@ class RecipeApp(ctk.CTkFrame):
 
         self.canvas_frame.bind("<Configure>", self.on_canvas_configure)
 
-        self.show_saved_button = ctk.CTkButton(self.input_frame, text="Show Saved Recipes", command=self.show_saved_recipes)
-        self.show_saved_button.grid(row=9, column=0, padx=10, pady=10, sticky="w")
-
         style = ttk.Style()
         style.configure("My.TSeparator", background="#2b2b2b")
+
+
 
     def on_canvas_configure(self, event=None):
         self.output_canvas.configure(scrollregion=self.output_canvas.bbox("all"))
@@ -251,10 +256,16 @@ class RecipeApp(ctk.CTkFrame):
             for widget in self.canvas_frame.winfo_children():
                 widget.destroy()
             self.images.clear()
+            self.selected_recipes.clear()
 
             translator = DeeplTranslator(api_key=deepL_key, source="en", target="de")
             y_position = 0
             for recipe in saved_recipes:
+                # Variable für die Auswahl des Rezepts
+                var = tk.BooleanVar()
+                self.selected_recipes[recipe['recipe_name']] = var
+                check_button = ctk.CTkCheckBox(self.canvas_frame, text="", variable=var)
+                check_button.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
 
                 translated_recipe_name = translator.translate(recipe['recipe_name'])
                 label = ctk.CTkLabel(self.canvas_frame, text=f"Rezept: {translated_recipe_name}", bg_color="#2b2b2b")
@@ -297,4 +308,23 @@ class RecipeApp(ctk.CTkFrame):
 
         except Exception as e:
             self.display_message(f"Fehler beim Laden der gespeicherten Rezepte: {str(e)}")
+
+    def delete_selected_recipes(self):
+        selected_recipes = [label for label, var in self.selected_recipes.items() if var.get()]
+
+        if not selected_recipes:
+            self.display_message("Please select at least one recipe to delete.")
+            return
+
+        try:
+            for recipe_name in selected_recipes:
+                # Rezept aus der Google Sheets-Datenbank löschen
+                self.db.delete_recipe(recipe_name, self.group_name_var.get())
+            
+            self.display_message("Selected recipes deleted successfully.")
+            self.show_saved_recipes()  # Aktualisiere die Liste der gespeicherten Rezepte
+        except Exception as e:
+            self.display_message(f"Error deleting recipes: {str(e)}")
+
+
 
