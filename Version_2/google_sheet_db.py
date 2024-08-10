@@ -49,19 +49,19 @@ class GoogleSheetDB:
         return any(record['GroupName'] == group_name for record in records)
 
 
-    def add_family_group(self, group_name, group_password, members=[], num_storages=0):
-        self.group_sheet.append_row([group_name, group_password, ','.join(members), num_storages])
+    # def add_family_group(self, group_name, group_password, members=[], num_storages=0):
+    #     self.group_sheet.append_row([group_name, group_password, ','.join(members), num_storages])
         
-        # Create a new sheet with headers
-        new_sheet = self.client.open_by_key(sheet_id).add_worksheet(title=f"Storage_{group_name}", rows="1000", cols="10")
-        headers = ['id', 'Storage_Name', 'location', 'food', 'food_type', 'food_ingredients', 'food_amount', 'amount_type', 'expire_day', 'sonst_info']
-        new_sheet.append_row(headers)
+    #     # Create a new sheet with headers
+    #     new_sheet = self.client.open_by_key(sheet_id).add_worksheet(title=f"Storage_{group_name}", rows="1000", cols="10")
+    #     headers = ['id', 'Storage_Name', 'location', 'food', 'food_type', 'food_ingredients', 'food_amount', 'amount_type', 'expire_day', 'sonst_info']
+    #     new_sheet.append_row(headers)
 
     def add_family_group(self, group_name, group_password, hashed_password, members=[], storages=[]):
         self.group_sheet.append_row([group_name, group_password, hashed_password, ','.join(members), ','.join(storages)])
         
         # Erstelle ein neues Arbeitsblatt mit Kopfzeilen
-        new_sheet = self.client.open_by_key(sheet_id).add_worksheet(title=f"Storage_{group_name}", rows="1000", cols="10")
+        new_sheet = self.client.open_by_key(self.sheet_id).add_worksheet(title=f"Storage_{group_name}", rows="1000", cols="10")
         headers = ['id', 'Storage_Name', 'food', 'food_type', 'food_ingredients', 'food_amount', 'amount_type', 'expire_day', 'sonst_info']
         new_sheet.append_row(headers)
 

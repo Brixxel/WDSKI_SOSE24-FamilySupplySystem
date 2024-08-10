@@ -24,7 +24,7 @@ class Menu(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.db = GoogleSheetDB(sheet_id, credentials_file)
-        self.group_name = "dieReglers"  # Placeholder, replace with actual group name after login
+        self.group_name = "dieReglers"  # Platzhalter, nach dem Login mit tatsächlichem Gruppennamen ersetzen
 
         self.Account = {
             "logged_in": True,
@@ -50,39 +50,39 @@ class Menu(ctk.CTk):
         self.menu_frame.grid(row=0, column=0, rowspan=4, sticky="nswe")
         self.menu_frame.grid_rowconfigure(9, weight=1)
 
-        self.menu_label = ctk.CTkLabel(self.menu_frame, text="Menu", font=("Arial", 16))
+        self.menu_label = ctk.CTkLabel(self.menu_frame, text="Menü", font=("Arial", 16))
         self.menu_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-        self.add_item_button = ctk.CTkButton(self.menu_frame, text="Add Food Item", command=self.show_add_food_item)
-        self.add_item_button.grid(row=1, column=0, padx=20, pady=10)
+        self.add_item_button = ctk.CTkButton(self.menu_frame, text="Lebensmittel hinzufügen", command=self.show_add_food_item)
+        self.add_item_button.grid(row=2, column=0, padx=20, pady=10)
 
-        self.view_items_button = ctk.CTkButton(self.menu_frame, text="View Food Items", command=self.show_view_food_items)
-        self.view_items_button.grid(row=2, column=0, padx=20, pady=10)
+        self.view_items_button = ctk.CTkButton(self.menu_frame, text="Lebensmittel anzeigen", command=self.show_view_food_items)
+        self.view_items_button.grid(row=3, column=0, padx=20, pady=10)
 
-        self.recipe_button = ctk.CTkButton(self.menu_frame, text="Recipe Finder", command=self.show_recipe_finder)
+        self.recipe_button = ctk.CTkButton(self.menu_frame, text="Rezeptfinder", command=self.show_recipe_finder)
         self.recipe_button.grid(row=4, column=0, padx=20, pady=10)
 
-#         self.view_recipes_button = ctk.CTkButton(self.menu_frame, text="View Recipes", command=self.show_view_recipes)
+#         self.view_recipes_button = ctk.CTkButton(self.menu_frame, text="Rezepte anzeigen", command=self.show_view_recipes)
 #         self.view_recipes_button.grid(row=4, column=0, padx=20, pady=10)
 
-#         self.view_shopping_list_button = ctk.CTkButton(self.menu_frame, text="View Shopping List", command=self.show_view_shopping_list)
+#         self.view_shopping_list_button = ctk.CTkButton(self.menu_frame, text="Einkaufsliste anzeigen", command=self.show_view_shopping_list)
 #         self.view_shopping_list_button.grid(row=5, column=0, padx=20, pady=10)
         
-        #TODO Sollte bald alles in einem unter-Menü ansteuerbar sein:
+        # TODO Sollte bald alles in einem Untermenü ansteuerbar sein:
         
-        self.manage_account_button = ctk.CTkButton(self.menu_frame, text="My Account", command= self.open_account_manager)
-        self.manage_account_button.grid(row=3, column=0, padx=20, pady=10)
+        self.manage_account_button = ctk.CTkButton(self.menu_frame, text="Mein Konto", command= self.open_account_manager)
+        self.manage_account_button.grid(row=1, column=0, padx=20, pady=10)
                 
         
-        ### Visual - Controle
+        ### Visual - Kontrolle
         
-        self.appearance_mode_label = ctk.CTkLabel(self.menu_frame, text="Appearance Mode:", anchor="w")
+        self.appearance_mode_label = ctk.CTkLabel(self.menu_frame, text="Darstellungsmodus:", anchor="w")
         self.appearance_mode_label.grid(row=10, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.menu_frame, values=["Light", "Dark", "System"],
+        self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.menu_frame, values=["Hell", "Dunkel", "System"],
                                                             command=self.change_appearance_mode_event)
         self.appearance_mode_optionemenu.grid(row=11, column=0, padx=20, pady=(10, 10))
 
-        self.scaling_label = ctk.CTkLabel(self.menu_frame, text="UI Scaling:", anchor="w")
+        self.scaling_label = ctk.CTkLabel(self.menu_frame, text="UI-Skalierung:", anchor="w")
         self.scaling_label.grid(row=12, column=0, padx=20, pady=(10, 0))
         self.scaling_optionemenu = ctk.CTkOptionMenu(self.menu_frame, values=["80%", "90%", "100%", "110%", "120%"],
                                                     command=self.change_scaling_event)
@@ -104,7 +104,7 @@ class Menu(ctk.CTk):
         else:
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
-            label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+            label = ctk.CTkLabel(self.main_frame, text="Bitte einloggen oder registrieren", font=("Arial", 20))
             label.pack(pady=200)    
             
 
@@ -135,7 +135,7 @@ class Menu(ctk.CTk):
         else:
             self.show_login_prompt()
 
-            label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+            label = ctk.CTkLabel(self.main_frame, text="Bitte einloggen oder registrieren", font=("Arial", 20))
             label.pack(pady=200)
 
     def show_view_recipes(self):
@@ -143,12 +143,12 @@ class Menu(ctk.CTk):
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
                 # Dummy edit account function
-                messagebox.showinfo("Update", "Coming soon!")
+                messagebox.showinfo("Update", "Kommt bald!")
         
         else:
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
-            label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+            label = ctk.CTkLabel(self.main_frame, text="Bitte einloggen oder registrieren", font=("Arial", 20))
             label.pack(pady=200)
 
     def show_view_shopping_list(self):
@@ -156,12 +156,12 @@ class Menu(ctk.CTk):
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
                 # Dummy edit account function
-                messagebox.showinfo("Update", "Coming soon!")
+                messagebox.showinfo("Update", "Kommt bald!")
         
         else:
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
-            label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+            label = ctk.CTkLabel(self.main_frame, text="Bitte einloggen oder registrieren", font=("Arial", 20))
             label.pack(pady=200)
             
             
@@ -176,7 +176,7 @@ class Menu(ctk.CTk):
     def show_login_prompt(self):
         for widget in self.main_frame.winfo_children():
             widget.destroy()
-        label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+        label = ctk.CTkLabel(self.main_frame, text="Bitte einloggen oder registrieren", font=("Arial", 20))
         label.pack(pady=200)
 
     def change_appearance_mode_event(self, new_appearance_mode: str):

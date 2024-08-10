@@ -20,19 +20,19 @@ class EditAccountApp(ctk.CTkFrame):
     def show_compare_password(self):
         self.clear_screen()
 
-        self.label_edit = ctk.CTkLabel(self, text="Enter your Password")
+        self.label_edit = ctk.CTkLabel(self, text="Geben Sie Ihr Passwort ein")
         self.label_edit.pack(pady=(20, 0))
 
-        self.password_entry = ctk.CTkEntry(self, placeholder_text="Aktuelles Password", show='*')
+        self.password_entry = ctk.CTkEntry(self, placeholder_text="Aktuelles Passwort", show='*')
         self.password_entry.pack(pady=5)
 
-        self.login_submit_button = ctk.CTkButton(self, text="Submit", command=self.compare_password)
+        self.login_submit_button = ctk.CTkButton(self, text="Absenden", command=self.compare_password)
         self.login_submit_button.pack(pady=20)
 
     def show_edit_screen(self):
         self.clear_screen()
 
-        self.label_edit = ctk.CTkLabel(self, text="Was willst du ändern?")
+        self.label_edit = ctk.CTkLabel(self, text="Was möchtest du ändern?")
         self.label_edit.pack(pady=(20, 0))
 
         self.edit_password_button = ctk.CTkButton(self, text="Passwort ändern", command=self.show_change_password)
@@ -46,24 +46,24 @@ class EditAccountApp(ctk.CTkFrame):
         password = self.password_entry.get()
         success = self.db.compare_userpassword(password, username)
         if success:
-            messagebox.showinfo("Success", "You can now change your password or email!")
+            messagebox.showinfo("Erfolg", "Sie können jetzt Ihr Passwort oder Ihre E-Mail ändern!")
             self.show_edit_screen()
         else:
-             messagebox.showerror("Error", "Wrong password!")
+             messagebox.showerror("Fehler", "Falsches Passwort!")
 
     def show_change_password(self):
         self.clear_screen()
 
-        self.label_edit = ctk.CTkLabel(self, text="Gebe dein neues Passwort ein")
+        self.label_edit = ctk.CTkLabel(self, text="Geben Sie Ihr neues Passwort ein")
         self.label_edit.pack(pady=(20, 0))
 
-        self.new_password_entry = ctk.CTkEntry(self, placeholder_text="Neues Password", show='*')
+        self.new_password_entry = ctk.CTkEntry(self, placeholder_text="Neues Passwort", show='*')
         self.new_password_entry.pack(pady=5)
 
-        self.confirm_password_entry = ctk.CTkEntry(self, placeholder_text="Password bestätigen", show='*')
+        self.confirm_password_entry = ctk.CTkEntry(self, placeholder_text="Passwort bestätigen", show='*')
         self.confirm_password_entry.pack(pady=5)
 
-        self.change_password_button = ctk.CTkButton(self, text="Change Password", command=self.change_password)
+        self.change_password_button = ctk.CTkButton(self, text="Passwort ändern", command=self.change_password)
         self.change_password_button.pack(pady=20)
 
     def change_password(self):
@@ -71,29 +71,29 @@ class EditAccountApp(ctk.CTkFrame):
         confirm_password = self.confirm_password_entry.get()
         
         if new_password != confirm_password:
-            messagebox.showerror("Error", "Passwords do not match!")
+            messagebox.showerror("Fehler", "Passwörter stimmen nicht überein!")
             return
 
         success = self.db.update_user_password(self.username, new_password)
         if success:
-            messagebox.showinfo("Success", "Password changed successfully!")
+            messagebox.showinfo("Erfolg", "Passwort erfolgreich geändert!")
             self.show_edit_screen()
         else:
-            messagebox.showerror("Error", "Failed to change password!")
+            messagebox.showerror("Fehler", "Passwortänderung fehlgeschlagen!")
 
     def show_change_email(self):
         self.clear_screen()
 
-        self.label_edit = ctk.CTkLabel(self, text="Gebe deine neue Email-Adresse ein")
+        self.label_edit = ctk.CTkLabel(self, text="Geben Sie Ihre neue E-Mail-Adresse ein")
         self.label_edit.pack(pady=(20, 0))
 
-        self.new_email_entry = ctk.CTkEntry(self, placeholder_text="Neue Email")
+        self.new_email_entry = ctk.CTkEntry(self, placeholder_text="Neue E-Mail")
         self.new_email_entry.pack(pady=5)
 
-        self.confirm_email_entry = ctk.CTkEntry(self, placeholder_text="Email bestätigen")
+        self.confirm_email_entry = ctk.CTkEntry(self, placeholder_text="E-Mail bestätigen")
         self.confirm_email_entry.pack(pady=5)
 
-        self.change_email_button = ctk.CTkButton(self, text="Change Email", command=self.change_email)
+        self.change_email_button = ctk.CTkButton(self, text="E-Mail ändern", command=self.change_email)
         self.change_email_button.pack(pady=20)
 
     def change_email(self):
@@ -101,19 +101,19 @@ class EditAccountApp(ctk.CTkFrame):
         confirm_email = self.confirm_email_entry.get()
 
         if new_email != confirm_email:
-            messagebox.showerror("Error", "Emails do not match!")
+            messagebox.showerror("Fehler", "E-Mails stimmen nicht überein!")
             return
 
         if not self.is_valid_email(new_email):
-            messagebox.showerror("Error", "Invalid email format!")
+            messagebox.showerror("Fehler", "Ungültiges E-Mail-Format!")
             return
 
         success = self.db.update_user_email(self.username, new_email)
         if success:
-            messagebox.showinfo("Success", "Email changed successfully!")
+            messagebox.showinfo("Erfolg", "E-Mail erfolgreich geändert!")
             self.show_edit_screen()
         else:
-            messagebox.showerror("Error", "Failed to change email!")
+            messagebox.showerror("Fehler", "E-Mail-Änderung fehlgeschlagen!")
 
     def is_valid_email(self, email):
         pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
