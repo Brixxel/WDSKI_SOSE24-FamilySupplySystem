@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
+from tkinter import messagebox
 from family_group_creator import FamilyGroupApp
 from food_item_creator import FoodItemApp
 from google_sheet_db import GoogleSheetDB
@@ -11,6 +12,7 @@ from recipe_app import RecipeApp
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 
+ctk.set_default_color_theme("green")
 
 # Google Sheet Setup
 sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
@@ -30,6 +32,14 @@ class Menu(ctk.CTk):
             "groups": ["dieReglers", "DieWebers"]
         }
 
+        
+        # self.Account = {
+        #     "logged_in" :  False,
+        #     "name" : "",
+        #     "groups" : []
+        # }
+        
+    
         self.title("Family Supply System")
         self.geometry("800x600")
         self.create_widgets()
@@ -52,11 +62,22 @@ class Menu(ctk.CTk):
         self.view_items_button.grid(row=2, column=0, padx=20, pady=10)
 
         self.recipe_button = ctk.CTkButton(self.menu_frame, text="Recipe Finder", command=self.show_recipe_finder)
-        self.recipe_button.grid(row=3, column=0, padx=20, pady=10)
+        self.recipe_button.grid(row=4, column=0, padx=20, pady=10)
 
-        self.manage_account_button = ctk.CTkButton(self.menu_frame, text="My Account", command=self.open_account_manager)
-        self.manage_account_button.grid(row=4, column=0, padx=20, pady=10)
+#         self.view_recipes_button = ctk.CTkButton(self.menu_frame, text="View Recipes", command=self.show_view_recipes)
+#         self.view_recipes_button.grid(row=4, column=0, padx=20, pady=10)
 
+#         self.view_shopping_list_button = ctk.CTkButton(self.menu_frame, text="View Shopping List", command=self.show_view_shopping_list)
+#         self.view_shopping_list_button.grid(row=5, column=0, padx=20, pady=10)
+        
+        #TODO Sollte bald alles in einem unter-Menü ansteuerbar sein:
+        
+        self.manage_account_button = ctk.CTkButton(self.menu_frame, text="My Account", command= self.open_account_manager)
+        self.manage_account_button.grid(row=3, column=0, padx=20, pady=10)
+                
+        
+        ### Visual - Controle
+        
         self.appearance_mode_label = ctk.CTkLabel(self.menu_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=10, column=0, padx=20, pady=(10, 0))
         self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.menu_frame, values=["Light", "Dark", "System"],
@@ -71,6 +92,23 @@ class Menu(ctk.CTk):
 
         self.main_frame = ctk.CTkFrame(self, width=600, height=600)
         self.main_frame.grid(row=0, column=1, sticky="nswe")
+        
+        # Willkommensnachricht
+        if self.Account["logged_in"]:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+            # Hintergrundfarbe des Frames ändern
+            self.main_frame.configure(fg_color="lightgreen")
+            welcome_label = ctk.CTkLabel(self.main_frame, text="WILLKOMMEN!", font=("Arial", 40, "bold"))
+            welcome_label.pack(pady=(150, 10))
+            name_label = ctk.CTkLabel(self.main_frame, text=self.Account["name"], font=("Arial", 30))
+            name_label.pack(pady=10)
+        else:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+            label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+            label.pack(pady=200)    
+            
 
     def show_add_food_item(self):
         if self.Account["logged_in"]:
@@ -99,6 +137,38 @@ class Menu(ctk.CTk):
         else:
             self.show_login_prompt()
 
+            label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+            label.pack(pady=200)
+
+    def show_view_recipes(self):
+        if self.Account["logged_in"]:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+                # Dummy edit account function
+                messagebox.showinfo("Update", "Coming soon!")
+        
+        else:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+            label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+            label.pack(pady=200)
+
+    def show_view_shopping_list(self):
+        if self.Account["logged_in"]:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+                # Dummy edit account function
+                messagebox.showinfo("Update", "Coming soon!")
+        
+        else:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+            label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+            label.pack(pady=200)
+            
+            
+    ### ---- Account - Funktionen: ----
+    
     def open_account_manager(self):
         for widget in self.main_frame.winfo_children():
             widget.destroy()

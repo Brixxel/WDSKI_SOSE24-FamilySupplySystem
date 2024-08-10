@@ -4,10 +4,11 @@ import customtkinter as ctk
 from google_sheet_db import GoogleSheetDB
 
 class FamilyGroupApp(ctk.CTkFrame):
-    def __init__(self, parent, sheet_id, credentials_file):
+    def __init__(self, parent, username, sheet_id, credentials_file):
         super().__init__(parent)
         self.db = GoogleSheetDB(sheet_id, credentials_file)
         self.create_widgets()
+        self.username = username
 
     def create_widgets(self):
         # Label und Eingabefeld für den Gruppennamen
@@ -31,13 +32,6 @@ class FamilyGroupApp(ctk.CTkFrame):
         self.entry_confirm_password = ctk.CTkEntry(self, show='*')
         self.entry_confirm_password.pack(pady=(5, 20))
 
-        # Label und Eingabefeld für Mitglieder
-        self.label_members = ctk.CTkLabel(self, text="Members (comma separated)")
-        self.label_members.pack(pady=(0, 0))
-
-        self.entry_members = ctk.CTkEntry(self)
-        self.entry_members.pack(pady=(5, 20))
-
         # Label und Eingabefeld für die Namen der Speicherorte
         self.label_storages = ctk.CTkLabel(self, text="Storage Names (comma separated)")
         self.label_storages.pack(pady=(0, 0))
@@ -53,8 +47,9 @@ class FamilyGroupApp(ctk.CTkFrame):
         # Hole die Eingaben
         group_name = self.entry_group_name.get()
         password = self.entry_password.get()
+        hashed_password = self.db.hash_password(password)
         confirm_password = self.entry_confirm_password.get()
-        members = [member.strip() for member in self.entry_members.get().split(',')]
+        members = [self.username]
         storages = [storage.strip() for storage in self.entry_storages.get().split(',')]
 
         # Überprüfe, ob die Passwörter übereinstimmen
@@ -68,7 +63,7 @@ class FamilyGroupApp(ctk.CTkFrame):
             return
 
         # Füge die Gruppeninformationen zur Datenbank hinzu
-        self.db.add_family_group(group_name, password, members, storages)
+        self.db.add_family_group(group_name, password, hashed_password, members, storages)
         messagebox.showinfo("Success", "Family Group created successfully!")
         self.clear_entries()
 
@@ -76,5 +71,4 @@ class FamilyGroupApp(ctk.CTkFrame):
         self.entry_group_name.delete(0, tk.END)
         self.entry_password.delete(0, tk.END)
         self.entry_confirm_password.delete(0, tk.END)
-        self.entry_members.delete(0, tk.END)
         self.entry_storages.delete(0, tk.END)
