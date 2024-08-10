@@ -15,7 +15,7 @@ import uuid
 
 # Google Sheet Setup
 sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
-credentials_file = "C:/Users/de136581/Documents/_Uni/SoSe_2024/Programierung_2/WDSKI_SOSE24-FamilySupplySystem/Version_1/credentials.json"
+credentials_file = "/Users/tom/Documents/GitHub/WDSKI_SOSE24-FamilySupplySystem/credentials.json"
 
 class GoogleSheetDB:
     def __init__(self, sheet_id, credentials_file):
