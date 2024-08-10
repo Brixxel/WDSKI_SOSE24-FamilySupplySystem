@@ -40,16 +40,14 @@ class GoogleSheetDB:
         sheet = self.client.open_by_key(sheet_id).worksheet(sheet_name)
         records = sheet.get_all_records()
         return list(set(record['Storage_Name'] for record in records if record['Storage_Name']))
-    
-    def compare_group_password(self, group_name, input_password):
-        sheet_name = "FamilyGroups"
-        sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
-        records = sheet.get_all_records()
+
+
+    def compare_group_password(self, group_name, hashed_password):
+        records = self.group_sheet.get_all_records()
         for record in records:
-            if record['GroupName'] == group_name:
-                stored_password = record['password']
-                return stored_password == input_password
-        return False  # Falls die Gruppe nicht gefunden wird oder das Passwort nicht übereinstimmt
+            if record['GroupName'] == group_name and record['hashed_password'] == hashed_password:
+                return True
+        return False
 
     
     def group_name_exists(self, group_name):
@@ -64,20 +62,62 @@ class GoogleSheetDB:
         headers = ['id', 'Storage_Name', 'location', 'food', 'food_type', 'food_ingredients', 'food_amount', 'amount_type', 'expire_day', 'sonst_info']
         new_sheet.append_row(headers)
 
-    def add_family_group(self, group_name, group_password, members=[], storages=[]):
-        self.group_sheet.append_row([group_name, group_password, ','.join(members), ','.join(storages)])
+    def add_family_group(self, group_name, group_password, hashed_password, members=[], storages=[]):
+        self.group_sheet.append_row([group_name, group_password, hashed_password, ','.join(members), ','.join(storages)])
         
         # Erstelle ein neues Arbeitsblatt mit Kopfzeilen
         new_sheet = self.client.open_by_key(sheet_id).add_worksheet(title=f"Storage_{group_name}", rows="1000", cols="10")
         headers = ['id', 'Storage_Name', 'food', 'food_type', 'food_ingredients', 'food_amount', 'amount_type', 'expire_day', 'sonst_info']
         new_sheet.append_row(headers)
 
-    def add_group_to_person(self, username, group_name, hashed_password):
+    def add_group_to_person_and_person_to_group(self, username, group_name):
+        # Flag um zu prüfen, ob Änderungen vorgenommen wurden
+        user_updated = False
+        group_updated = False
+        
+        # Lade alle Datensätze aus dem User-Sheet und aktualisiere die Gruppenliste des Benutzers
         records = self.user_sheet.get_all_records()
-        for record in records:    
-            if record['username'] == username and record['password'] == hashed_password:
-                record['Groups'] = group_name
-        return None
+        for idx, record in enumerate(records):
+            if record['username'] == username:
+                # Aktualisiere die Gruppen im entsprechenden Datensatz
+                current_groups = record.get('Groups', '')
+                if current_groups:
+                    # Überprüfe, ob die Gruppe bereits existiert, um Duplikate zu vermeiden
+                    existing_groups = current_groups.split(',')
+                    if group_name not in existing_groups:
+                        new_groups = f"{current_groups},{group_name}"  # Füge die neue Gruppe hinzu
+                        col_index = list(record.keys()).index('Groups') + 1
+                        self.user_sheet.update_cell(idx + 2, col_index, new_groups)
+                        user_updated = True
+                else:
+                    new_groups = group_name  # Setze die neue Gruppe, wenn es keine gibt
+                    col_index = list(record.keys()).index('Groups') + 1
+                    self.user_sheet.update_cell(idx + 2, col_index, new_groups)
+                    user_updated = True
+
+        # Wenn der Benutzer aktualisiert wurde, aktualisiere die Mitgliederliste der Gruppe
+        if user_updated:
+            group_records = self.group_sheet.get_all_records()
+            for idx, group_record in enumerate(group_records):
+                if group_record['GroupName'] == group_name:
+                    current_members = group_record.get('members', '')
+                    if current_members:
+                        # Überprüfe, ob der Benutzer bereits in der Mitgliederliste ist
+                        existing_members = current_members.split(',')
+                        if username not in existing_members:
+                            new_members = f"{current_members},{username}"  # Füge den Benutzer hinzu
+                            col_index = list(group_record.keys()).index('members') + 1
+                            self.group_sheet.update_cell(idx + 2, col_index, new_members)
+                            group_updated = True
+                    else:
+                        new_members = username  # Setze den Benutzer, wenn es noch keine Mitglieder gibt
+                        col_index = list(group_record.keys()).index('members') + 1
+                        self.group_sheet.update_cell(idx + 2, col_index, new_members)
+                        group_updated = True
+
+        return user_updated and group_updated
+
+
 
     def hash_password(self, password):
         return hashlib.sha256(password.encode()).hexdigest()

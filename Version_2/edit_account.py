@@ -20,6 +20,9 @@ class EditAccountApp(ctk.CTkFrame):
     def show_compare_password(self):
         self.clear_screen()
 
+        self.label_edit = ctk.CTkLabel(self, text="Enter your Password")
+        self.label_edit.pack(pady=(20, 0))
+
         self.password_entry = ctk.CTkEntry(self, placeholder_text="Aktuelles Password", show='*')
         self.password_entry.pack(pady=5)
 
@@ -28,6 +31,9 @@ class EditAccountApp(ctk.CTkFrame):
 
     def show_edit_screen(self):
         self.clear_screen()
+
+        self.label_edit = ctk.CTkLabel(self, text="Was willst du ändern?")
+        self.label_edit.pack(pady=(20, 0))
 
         self.edit_password_button = ctk.CTkButton(self, text="Passwort ändern", command=self.show_change_password)
         self.edit_password_button.pack(pady=20)
@@ -38,15 +44,18 @@ class EditAccountApp(ctk.CTkFrame):
     def compare_password(self):
         username = self.username
         password = self.password_entry.get()
-        # success = self.db.compare_userpassword(password, username)
-        # if success:
-        messagebox.showinfo("Success", "You can now change your password or email!")
-        self.show_edit_screen()
-        # else:
-        #     messagebox.showerror("Error", "Wrong password!")
+        success = self.db.compare_userpassword(password, username)
+        if success:
+            messagebox.showinfo("Success", "You can now change your password or email!")
+            self.show_edit_screen()
+        else:
+             messagebox.showerror("Error", "Wrong password!")
 
     def show_change_password(self):
         self.clear_screen()
+
+        self.label_edit = ctk.CTkLabel(self, text="Gebe dein neues Passwort ein")
+        self.label_edit.pack(pady=(20, 0))
 
         self.new_password_entry = ctk.CTkEntry(self, placeholder_text="Neues Password", show='*')
         self.new_password_entry.pack(pady=5)
@@ -74,6 +83,9 @@ class EditAccountApp(ctk.CTkFrame):
 
     def show_change_email(self):
         self.clear_screen()
+
+        self.label_edit = ctk.CTkLabel(self, text="Gebe deine neue Email-Adresse ein")
+        self.label_edit.pack(pady=(20, 0))
 
         self.new_email_entry = ctk.CTkEntry(self, placeholder_text="Neue Email")
         self.new_email_entry.pack(pady=5)
