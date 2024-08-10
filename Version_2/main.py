@@ -31,15 +31,13 @@ class Menu(ctk.CTk):
             "name": "DerRegler",
             "groups": ["dieReglers", "DieWebers"]
         }
-
-        
+ 
         # self.Account = {
         #     "logged_in" :  False,
         #     "name" : "",
         #     "groups" : []
         # }
         
-    
         self.title("Family Supply System")
         self.geometry("800x600")
         self.create_widgets()
