@@ -96,7 +96,7 @@ class Menu(ctk.CTk):
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
             # Hintergrundfarbe des Frames ändern
-            self.main_frame.configure(fg_color="lightgreen")
+            #self.main_frame.configure(fg_color="lightgreen")
             welcome_label = ctk.CTkLabel(self.main_frame, text="WILLKOMMEN!", font=("Arial", 40, "bold"))
             welcome_label.pack(pady=(150, 10))
             name_label = ctk.CTkLabel(self.main_frame, text=self.Account["name"], font=("Arial", 30))
