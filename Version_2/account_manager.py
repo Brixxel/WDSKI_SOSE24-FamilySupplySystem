@@ -130,13 +130,14 @@ class AccountManager(ctk.CTkFrame):
 
     def create_family(self):
         self.clear_screen()
-        family_group_app = FamilyGroupApp(self, self.sheet_id, self.credentials_file)
+        username = self.Account["name"]  
+        family_group_app = FamilyGroupApp(self, username, self.sheet_id, self.credentials_file)
         family_group_app.pack(fill="both", expand=True)
 
     def join_family(self):
         self.clear_screen()
-        username = self.Account["name"]  # Hier wird der Username korrekt aus dem Account-Objekt genommen
-        family_join_app = FamilyJoinApp(self, username, self.sheet_id, self.credentials_file)  # Hier wird der Username an die FamilyJoinApp übergeben
+        username = self.Account["name"] 
+        family_join_app = FamilyJoinApp(self, username, self.sheet_id, self.credentials_file) 
         family_join_app.pack(fill="both", expand=True)
 
     def edit_account(self):
