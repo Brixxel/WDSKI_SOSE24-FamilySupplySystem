@@ -9,6 +9,7 @@ from google_sheet_db import GoogleSheetDB
 from account_manager import AccountManager
 from food_display_app import FoodDisplayApp
 
+ctk.set_default_color_theme("green")
 
 # Google Sheet Setup
 sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
@@ -31,6 +32,12 @@ class Menu(ctk.CTk):
             "name" : "DerRegler",
             "groups" : ["dieReglers", "DieWebers"]
         }
+        
+        # self.Account = {
+        #     "logged_in" :  False,
+        #     "name" : "",
+        #     "groups" : []
+        # }
         
     
         self.title("Family Supply System")
@@ -87,6 +94,23 @@ class Menu(ctk.CTk):
         # Main Frame
         self.main_frame = ctk.CTkFrame(self, width=600, height=600)
         self.main_frame.grid(row=0, column=1, sticky="nswe")
+        
+        # Willkommensnachricht
+        if self.Account["logged_in"]:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+            # Hintergrundfarbe des Frames ändern
+            self.main_frame.configure(fg_color="lightgreen")
+            welcome_label = ctk.CTkLabel(self.main_frame, text="WILLKOMMEN!", font=("Arial", 40, "bold"))
+            welcome_label.pack(pady=(150, 10))
+            name_label = ctk.CTkLabel(self.main_frame, text=self.Account["name"], font=("Arial", 30))
+            name_label.pack(pady=10)
+        else:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+            label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
+            label.pack(pady=200)    
+            
 
     def show_add_food_item(self):
         if self.Account["logged_in"]:
