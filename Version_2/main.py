@@ -40,7 +40,7 @@ class Menu(ctk.CTk):
         #     "groups" : []
         # }
         
-        self.title("Family Supply System")
+        self.title("KitchenKeeper")
         self.geometry("800x600")
         self.create_widgets()
 
