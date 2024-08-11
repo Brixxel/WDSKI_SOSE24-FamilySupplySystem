@@ -197,4 +197,11 @@ class Menu(ctk.CTk):
 
 if __name__ == '__main__':
     app = Menu()
+    icon_path = os.path.dirname(__file__)
+    icon_path = os.path.join(script_dir, "kühlschrank.ico")
+    if os.path.exists(icon_path):
+        app.iconbitmap(icon_path)
+    else:
+        print("Icon file not found!")
+
     app.mainloop()
