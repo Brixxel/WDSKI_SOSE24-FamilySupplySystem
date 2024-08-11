@@ -143,11 +143,17 @@ class AccountManager(ctk.CTkFrame):
         family_group_app.pack(fill="both", expand=True)
 
     def join_family(self):
-        # Leitet zur Ansicht zum Beitreten einer existierenden Familie weiter
         self.clear_screen()
-        username = self.Account["name"] 
-        family_join_app = FamilyJoinApp(self, username, self.sheet_id, self.credentials_file) 
+        username = self.Account["name"]
+        family_join_app = FamilyJoinApp(self, username, self.sheet_id, self.credentials_file, callback=self.add_group_to_account)
         family_join_app.pack(fill="both", expand=True)
+
+    def add_group_to_account(self, group_name):
+        if group_name not in self.Account["groups"]:
+            self.Account["groups"].append(group_name)
+            messagebox.showinfo("Erfolg", f"Sie sind der Gruppe '{group_name}' erfolgreich beigetreten!")
+        else:
+            messagebox.showinfo("Info", f"Sie sind bereits Mitglied der Gruppe '{group_name}'.")
 
     def edit_account(self):
         # Leitet zur Ansicht zum Bearbeiten des Benutzerkontos weiter

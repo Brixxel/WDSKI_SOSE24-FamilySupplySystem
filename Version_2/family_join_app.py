@@ -5,10 +5,11 @@ from google_sheet_db import GoogleSheetDB
 
 
 class FamilyJoinApp(ctk.CTkFrame):
-    def __init__(self, parent, username, sheet_id, credentials_file):
+    def __init__(self, parent, username, sheet_id, credentials_file, callback = None):
         super().__init__(parent)
         self.db = GoogleSheetDB(sheet_id, credentials_file)
         self.username = username
+        self.callback = callback  # Der Callback, der nach dem Beitritt aufgerufen wird
         self.create_widgets()
         
 
@@ -52,7 +53,9 @@ class FamilyJoinApp(ctk.CTkFrame):
         # Füge die Gruppe zum Account hinzu
         success = self.db.add_group_to_person_and_person_to_group(username, group_name) and self.db.compare_group_password(group_name, hashed_password)
         if success:
-            messagebox.showinfo("Erfolg", "Erfolgreich der Familiengruppe beigetreten!")
+            # Füge die Gruppe dem Account hinzu
+            if self.callback:
+                self.callback(group_name)
             self.clear_entries()
         else:
             messagebox.showerror("Fehler", "Du bist bereits in der Gruppe!")
