@@ -5,6 +5,7 @@ import customtkinter as ctk
 from tkinter import ttk
 from google_sheet_db import GoogleSheetDB
 import tkinter as tk
+from tkcalendar import DateEntry
 import datetime
 
 class FoodDisplayApp(ctk.CTkFrame):
@@ -314,10 +315,10 @@ class EditItemDialog(ctk.CTkToplevel):
         expiry_label = ctk.CTkLabel(self, text=labels[6])
         expiry_label.grid(row=6, column=0, padx=20, pady=10, sticky='w')
         
-        self.expiry_entry = ctk.CTkEntry(self)
-        self.expiry_entry.insert(0, self.values[6])
+        self.expiry_entry = DateEntry(self, date_pattern="yyyy-mm-dd")
+        self.expiry_entry.set_date(self.values[6])
         self.expiry_entry.grid(row=6, column=1, padx=20, pady=10, sticky='ew')
-
+        
         # Entry für Notes
         notes_label = ctk.CTkLabel(self, text=labels[7])
         notes_label.grid(row=7, column=0, padx=20, pady=10, sticky='w')
