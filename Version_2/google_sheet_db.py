@@ -38,12 +38,22 @@ class GoogleSheetDB:
         records = sheet.get_all_records()
         return list(set(record['Storage_Name'] for record in records if record['Storage_Name']))
 
-    def get_food_items_from_storage(self, group_name, storage_name):
+    def get_food_items_from_storage(self, group_name, storage_name, food_types=None):
         # Gibt eine Liste von Lebensmitteln aus einem bestimmten Speicher zurück
+
         sheet_name = f"Storage_{group_name}"
         sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
         records = sheet.get_all_records()
-        return [{'name': record['food'], 'food_type': record['food_type']} for record in records if record['Storage_Name'] == storage_name and record['food_type'] == 'Rohkost']
+
+        if food_types:
+            return [{'name': record['food'], 'food_type': record['food_type']} 
+                    for record in records 
+                    if record['Storage_Name'] == storage_name and record['food_type'] in food_types]
+        else:
+            return [{'name': record['food'], 'food_type': record['food_type']} 
+                    for record in records 
+                    if record['Storage_Name'] == storage_name]
+
 
     def group_name_exists(self, group_name):
         # Überprüft, ob ein Gruppenname bereits existiert
@@ -144,7 +154,7 @@ class GoogleSheetDB:
                         group_updated = True
 
         return user_updated and group_updated
-
+      
     ### Funktionen zum Bearbeiten von Benutzerinformationen ###
 
     def compare_userpassword(self, password, username):
@@ -175,6 +185,7 @@ class GoogleSheetDB:
                 self.user_sheet.update_cell(index + 2, 2, new_email)  # Update email
                 return True
         return False
+
 
     ### Funktionen für den Umgang mit den Essensdaten ###
 
@@ -209,8 +220,8 @@ class GoogleSheetDB:
         sheet = self.client.open_by_key(self.sheet_id).worksheet(sheet_name)
         records = sheet.get_all_records()
         return [(record['id'], record['Storage_Name'], record['food'], record['food_type'],
-                 record['food_ingredients'], record['food_amount'], record['amount_type'],
-                 record['expire_day'], record['sonst_info']) for record in records]
+                record['food_ingredients'], record['food_amount'], record['amount_type'],
+                record['expire_day'], record['sonst_info']) for record in records]
     
     def get_filtered_food_items(self, group_name, selected_storages, selected_food_types):
         # Alle Lebensmittel für die Gruppe abrufen
@@ -244,3 +255,29 @@ class GoogleSheetDB:
         # gespeichertes Rezept zurückgeben
         records = self.recipes_sheet.get_all_records()
         return [record for record in records if record['group_name'] == group_name]
+    
+    def delete_recipe(self, recipe_name, group_name):
+        #um gespeicherte Rezepte zu löschen
+        sheet = self.recipes_sheet
+        cell = sheet.find(recipe_name)
+        
+        if cell and sheet.cell(cell.row, 6).value == group_name:  
+            sheet.delete_rows(cell.row)  
+        else:
+            raise Exception(f"Recipe '{recipe_name}' not found or does not belong to the group '{group_name}'.")
+
+    def generate_shopping_list(self, group_name):
+        shopping_list = []
+        
+        # Hol dir alle gespeicherten Rezepte für diese Gruppe
+        recipes = self.get_saved_recipes(group_name)
+        
+
+        for recipe in recipes:
+            for ingredient in recipe['ingredients'].split(', '):
+                if ingredient not in shopping_list:
+                    shopping_list.append(ingredient)
+
+        return shopping_list
+
+

@@ -27,13 +27,14 @@ class Menu(ctk.CTk):
             "name": "DerRegler",
             "groups": ["dieReglers", "DieWebers"]
         }
- 
+
         # self.Account = {
         #     "logged_in" :  False,
         #     "name" : "",
         #     "groups" : []
         # }
         
+
         self.title("KitchenKeeper")
         self.geometry("800x600")
         self.set_icon_based_on_mode()
