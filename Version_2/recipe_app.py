@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
+from tkinter import *
 from PIL import Image, ImageTk
 import io
 import requests
@@ -105,7 +106,10 @@ class RecipeApp(ctk.CTkFrame):
         self.vegetarian_check = ctk.CTkCheckBox(self.input_frame, text="Vegetarisch", variable=self.vegetarian_var)
         self.vegetarian_check.grid(row=6, column=0, padx=10, pady=10, sticky="w")
 
-        self.search_button = ctk.CTkButton(self.input_frame, text="Rezepte suchen", command=self.on_search_button_click)
+        lupe_img_path = r"Version_2\icons\lupe.png"
+        search_item_img = PhotoImage(file=lupe_img_path)
+
+        self.search_button = ctk.CTkButton(self.input_frame, image=search_item_img, compound="left", text="Rezepte suchen", command=self.on_search_button_click)
         self.search_button.grid(row=7, column=0, padx=10, pady=10, sticky="w")
 
         self.save_button = ctk.CTkButton(self.input_frame, text="Ausgewählte Rezepte speichern", command=self.save_selected_recipes)

@@ -36,6 +36,7 @@ class Menu(ctk.CTk):
         
         self.title("KitchenKeeper")
         self.geometry("800x600")
+        self.set_icon_based_on_mode()
         self.create_widgets()
 
     ## linkes Menü erstellen 
@@ -57,7 +58,7 @@ class Menu(ctk.CTk):
 
         # Bildpfade anpassen und Bilder laden
         add_item_img_path = r"Version_2\icons\plus.png"
-        view_items_img_path = r"Version_2\icons\pizza.png"
+        view_items_img_path = r"Version_2\icons\apple.png"
         recipe_img_path = r"Version_2\icons\book.png"
 
         add_item_img = PhotoImage(file=add_item_img_path)
@@ -179,12 +180,21 @@ class Menu(ctk.CTk):
     def change_scaling_event(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         ctk.set_widget_scaling(new_scaling_float)
+    
+    def set_icon_based_on_mode(self):
+        
+        current_mode = ctk.get_appearance_mode()
 
+        if current_mode == "Dark":
+            icon_path = r"Version_2\icons\kühlschrank_light.ico"
+        if current_mode == "System":
+            icon_path = r"Version_2\icons\kühlschrank_light.ico"
+        elif current_mode == "Light":
+            icon_path = r"Version_2\icons\kühlschrank_dark.ico"
+        self.iconbitmap(icon_path)
 
 ### öffnen des Fensters ###
 
 if __name__ == '__main__':
     app = Menu()
-    icon_path = r"Version_2\icons\kühlschrank_dark.ico"
-    app.iconbitmap(icon_path)
     app.mainloop()
