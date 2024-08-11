@@ -1,75 +1,11 @@
 import customtkinter as ctk
 from tkinter import messagebox
 import pandas as pd
-import customtkinter as ctk
-from tkinter import ttk
 from google_sheet_db import GoogleSheetDB
 import tkinter as tk
+from tkinter import ttk
+from tkcalendar import DateEntry
 import datetime
-
-# from google_sheet_db import GoogleSheetDB
-
-# class FoodDisplayApp(ctk.CTkFrame):
-#     def __init__(self, parent, sheet_id, credentials_file, account):
-#         super().__init__(parent)
-#         self.sheet_id = sheet_id
-#         self.credentials_file = credentials_file
-#         self.account = account
-#         self.db = GoogleSheetDB(sheet_id, credentials_file)
-        
-#         self.create_widgets()
-#         self.load_food_items()
-
-#     def create_widgets(self):
-#         self.filter_frame = ctk.CTkFrame(self)
-#         self.filter_frame.pack(side="top", fill="x", padx=10, pady=5)
-
-#         self.sort_button = ctk.CTkButton(self.filter_frame, text="Sort by Date", command=self.sort_by_date)
-#         self.sort_button.pack(side="left", padx=5, pady=5)
-
-#         self.filter_button = ctk.CTkButton(self.filter_frame, text="Filter", command=self.apply_filter)
-#         self.filter_button.pack(side="left", padx=5, pady=5)
-
-#         self.food_list_frame = ctk.CTkFrame(self)
-#         self.food_list_frame.pack(side="top", fill="both", expand=True)
-
-#     def load_food_items(self):
-#         group_name = self.account["groups"][0]  # Placeholder, select the correct group if necessary
-#         storage_names = self.db.get_all_storages_from_family(group_name)
-        
-#         food_data = []
-#         for storage in storage_names:
-#             food_items = self.db.get_storage_items(group_name, storage)
-#             food_data.extend(food_items)
-        
-#         self.display_food_items(food_data)
-
-#     def display_food_items(self, food_data):
-#         for widget in self.food_list_frame.winfo_children():
-#             widget.destroy()
-
-#         for food in food_data:
-#             food_label = ctk.CTkLabel(self.food_list_frame, text=str(food))
-#             food_label.pack(fill="x", padx=10, pady=5)
-
-#     def sort_by_date(self):
-#         group_name = self.account["groups"][0]
-#         storage_names = self.db.get_all_storages_from_family(group_name)
-        
-#         food_data = []
-#         for storage in storage_names:
-#             food_items = self.db.get_storage_items(group_name, storage)
-#             food_data.extend(food_items)
-
-#         # Sort food_data by expire_day
-#         food_data.sort(key=lambda x: x['expire_day'])
-#         self.display_food_items(food_data)
-
-#     def apply_filter(self):
-#         # Implement filtering functionality here, e.g., by food type or other criteria
-#         pass
-
-
 
 class FoodDisplayApp(ctk.CTkFrame):
     def __init__(self, parent, sheet_id, credentials_file, account):
@@ -83,21 +19,23 @@ class FoodDisplayApp(ctk.CTkFrame):
         
         self.create_widgets()
 
+
+# Tabellarische Darstellung der Kühlschrank Inhalte, sowie ergänzende Steuerungs und Manipulations-Buttons
     def create_widgets(self):
         
         self.filter_frame = ctk.CTkFrame(self)
         self.filter_frame.pack(side="top", fill="x", padx=10, pady=5)
         
-        # Filter und Options:
+        # Filter und Optionen:
         self.group_name_var = tk.StringVar(value=self.group_names[0] if self.group_names else "")
         self.dropdown_group_name = ctk.CTkOptionMenu(self.filter_frame, variable=self.group_name_var, values=self.group_names, command=self.fill_table)
         self.dropdown_group_name.grid(row=0, column=0, columnspan=2, padx=20, pady=10, sticky='ew')
         
-        self.sort_button = ctk.CTkButton(self.filter_frame, text="Sort by Date", command=self.sort_by_date)
-        self.sort_button.grid(row =1,  column = 0, padx=5, pady=5)
+        self.sort_button = ctk.CTkButton(self.filter_frame, text="Nach Datum sortieren", command=self.sort_by_date)
+        self.sort_button.grid(row=1, column=0, padx=5, pady=5)
 
         self.filter_button = ctk.CTkButton(self.filter_frame, text="Filter", command=self.show_filter_window)
-        self.filter_button.grid(row =1,  column = 1, columnspan=2, padx=20, pady=20)
+        self.filter_button.grid(row=1, column=1, columnspan=2, padx=20, pady=20)
         
         # Frame für Treeview und Scrollbars erstellen
         self.table_frame = ctk.CTkFrame(self)
@@ -132,6 +70,8 @@ class FoodDisplayApp(ctk.CTkFrame):
 
         delete_button = ctk.CTkButton(self, text="Löschen", command=self.delete_item)
         delete_button.pack(side="left", padx=10, pady=10)
+
+     ### ---------------------- Steuerungs-Funktionen -------------------------- ###
 
     def fill_table(self, *args):
         # Optional: `args` verwenden, um den Wert aus dem Dropdown-Menü zu berücksichtigen
@@ -189,26 +129,26 @@ class FoodDisplayApp(ctk.CTkFrame):
  ### Methoden zum Filtern der Einträge ###
 
     def apply_filter(self):
-        # Ausgewählte Storages und Food Types sammeln
+        # Ausgewählte Speicherorte und Lebensmitteltypen sammeln
         selected_group = self.group_name_var.get()
         selected_storages = [storage for storage, var in self.selected_storages if var.get()]
         selected_food_types = [food_type for food_type, var in self.selected_food_types if var.get()]
 
         if not selected_storages:
-            messagebox.showerror("Error", "Please select at least one storage.")
+            messagebox.showerror("Fehler", "Bitte wähle mindestens einen Speicherort aus.")
             return
 
         if not selected_food_types:
-            messagebox.showerror("Error", "Please select at least one food type.")
+            messagebox.showerror("Fehler", "Bitte wähle mindestens einen Lebensmitteltyp aus.")
             return
 
         # Filtern der Lebensmittel basierend auf den ausgewählten Kriterien
         filtered_items = self.db.get_filtered_food_items(selected_group, selected_storages, selected_food_types)
 
-        # Update der Treeview-Tabelle mit den gefilterten Items
+        # Aktualisierung der Treeview-Tabelle mit den gefilterten Items
         self.update_ui_with_filtered_items(filtered_items)
 
-        messagebox.showinfo("Success", "Filter applied successfully!")
+        messagebox.showinfo("Erfolg", "Filter erfolgreich angewendet!")
 
 
     def update_ui_with_filtered_items(self, items):
@@ -217,7 +157,7 @@ class FoodDisplayApp(ctk.CTkFrame):
 
         if not items:
             # Optional: Eine Nachricht in die Tabelle einfügen, wenn keine Daten vorhanden sind
-            self.tree.insert("", "end", values=("No items to display",) * len(self.tree["columns"]))
+            self.tree.insert("", "end", values=("Keine Artikel zum Anzeigen",) * len(self.tree["columns"]))
             return
 
         # Daten in die Tabelle einfügen
@@ -231,10 +171,10 @@ class FoodDisplayApp(ctk.CTkFrame):
         # Rücksetzung des Filters, um alle Einträge anzuzeigen
         all_items = self.db.get_all_data(self.group_name_var.get())
         
-        # Update der Treeview-Tabelle mit allen Items
+        # Aktualisierung der Treeview-Tabelle mit allen Items
         self.update_ui_with_filtered_items(all_items)
 
-        messagebox.showinfo("Success", "Filter disabled!")
+        messagebox.showinfo("Erfolg", "Filter deaktiviert!")
 
 
     def show_filter_window(self):
@@ -242,8 +182,8 @@ class FoodDisplayApp(ctk.CTkFrame):
         filter_window = ctk.CTkToplevel(self)
         filter_window.title("Filter Items")
         
-        # Erstelle die Liste der Storages
-        storage_label = ctk.CTkLabel(filter_window, text="Select Storages:")
+        # Erstelle die Liste der Speicherorte
+        storage_label = ctk.CTkLabel(filter_window, text="Speicherorte auswählen:")
         storage_label.pack(padx=10, pady=(10, 0))
 
         self.selected_storages = []
@@ -255,7 +195,7 @@ class FoodDisplayApp(ctk.CTkFrame):
                 var.set(select_all)
 
         all_var_storages = tk.BooleanVar(value=True)
-        all_check_storages = ctk.CTkCheckBox(filter_window, text="All Storages", variable=all_var_storages, command=toggle_all_storages)
+        all_check_storages = ctk.CTkCheckBox(filter_window, text="Alle Speicherorte", variable=all_var_storages, command=toggle_all_storages)
         all_check_storages.pack(anchor='w', padx=10, pady=2)
 
         self.storage_vars = [tk.BooleanVar(value=True) for _ in storages]
@@ -266,13 +206,13 @@ class FoodDisplayApp(ctk.CTkFrame):
             chk.pack(anchor='w', padx=10, pady=2)
             self.selected_storages.append((storage, self.storage_vars[i]))
 
-        # Erstelle die Liste der Food-Types
-        food_type_label = ctk.CTkLabel(filter_window, text="Select Food Types:")
+        # Erstelle die Liste der Lebensmitteltypen
+        food_type_label = ctk.CTkLabel(filter_window, text="Lebensmitteltypen auswählen:")
         food_type_label.pack(padx=10, pady=(10, 0))
 
         Food_Types = ["Rohkost", "Gekochtes", "Gegrilltes", "Gebratenes", "Gebäck", "Eingemachtes", 
-                    "Zutat", "Fermentiertes", "Süßes", "Snack", "Getränk", "Suppe", "Salat", 
-                    "Kalte Speise", "Warme Speise"]
+                      "Zutat", "Fermentiertes", "Süßes", "Snack", "Getränk", "Suppe", "Salat", 
+                      "Kalte Speise", "Warme Speise"]
 
         def toggle_all_food_types():
             select_all = all_var_food_types.get()
@@ -280,7 +220,7 @@ class FoodDisplayApp(ctk.CTkFrame):
                 var.set(select_all)
 
         all_var_food_types = tk.BooleanVar(value=True)
-        all_check_food_types = ctk.CTkCheckBox(filter_window, text="All Food Types", variable=all_var_food_types, command=toggle_all_food_types)
+        all_check_food_types = ctk.CTkCheckBox(filter_window, text="Alle Lebensmitteltypen", variable=all_var_food_types, command=toggle_all_food_types)
         all_check_food_types.pack(anchor='w', padx=10, pady=2)
 
         self.food_type_vars = [tk.BooleanVar(value=True) for _ in Food_Types]
@@ -293,15 +233,15 @@ class FoodDisplayApp(ctk.CTkFrame):
             self.selected_food_types.append((food_type, self.food_type_vars[i]))
 
         # Filter-Button
-        apply_filter_button = ctk.CTkButton(filter_window, text="Apply Filter", command=self.apply_filter)
+        apply_filter_button = ctk.CTkButton(filter_window, text="Filter anwenden", command=self.apply_filter)
         apply_filter_button.pack(pady=(10, 5))
 
         # Filter deaktivieren
-        disable_filter_button = ctk.CTkButton(filter_window, text="Disable Filter", command=self.disable_filter)
+        disable_filter_button = ctk.CTkButton(filter_window, text="Filter deaktivieren", command=self.disable_filter)
         disable_filter_button.pack(pady=5)
 
+### ---- Dialog zum Bearbeiten der Einträge ---- ###
 
-### Zum Bearbeiten der Einträge ###
 class EditItemDialog(ctk.CTkToplevel):
     def __init__(self, parent, values, callback, db, group_name):
         super().__init__(parent)
@@ -314,9 +254,9 @@ class EditItemDialog(ctk.CTkToplevel):
     def create_widgets(self):
         self.title("Bearbeiten")
 
-        labels = ["Storage Name", "Food", "Food Type", "Food Ingredients", "Food Amount", "Amount Type", "Expire Day", "Sonst Info"]
+        labels = ["Speicherort", "Lebensmittel", "Lebensmitteltyp", "Zutaten", "Menge", "Mengeneinheit", "Ablaufdatum", "Sonstige Informationen"]
         
-        # Dropdown für Storage
+        # Dropdown für Speicherort
         storage_label = ctk.CTkLabel(self, text=labels[0])
         storage_label.grid(row=0, column=0, padx=20, pady=10, sticky='w')
         
@@ -324,7 +264,7 @@ class EditItemDialog(ctk.CTkToplevel):
         storage_dropdown = ctk.CTkOptionMenu(self, variable=self.storage_var, values=self.db.get_all_storages_from_family(self.group_name))
         storage_dropdown.grid(row=0, column=1, padx=20, pady=10, sticky='ew')
 
-        # Entry für Food
+        # Eingabefeld für Lebensmittel
         food_label = ctk.CTkLabel(self, text=labels[1])
         food_label.grid(row=1, column=0, padx=20, pady=10, sticky='w')
         
@@ -332,7 +272,7 @@ class EditItemDialog(ctk.CTkToplevel):
         self.food_entry.insert(0, self.values[1])
         self.food_entry.grid(row=1, column=1, padx=20, pady=10, sticky='ew')
 
-        # Dropdown für Food Type
+        # Dropdown für Lebensmitteltyp
         food_type_label = ctk.CTkLabel(self, text=labels[2])
         food_type_label.grid(row=2, column=0, padx=20, pady=10, sticky='w')
         
@@ -344,7 +284,7 @@ class EditItemDialog(ctk.CTkToplevel):
         ])
         food_type_dropdown.grid(row=2, column=1, padx=20, pady=10, sticky='ew')
 
-        # Entry für Ingredients
+        # Eingabefeld für Zutaten
         ingredients_label = ctk.CTkLabel(self, text=labels[3])
         ingredients_label.grid(row=3, column=0, padx=20, pady=10, sticky='w')
         
@@ -352,7 +292,7 @@ class EditItemDialog(ctk.CTkToplevel):
         self.ingredients_entry.insert(0, self.values[3])
         self.ingredients_entry.grid(row=3, column=1, padx=20, pady=10, sticky='ew')
 
-        # Entry für Amount
+        # Eingabefeld für Menge
         amount_label = ctk.CTkLabel(self, text=labels[4])
         amount_label.grid(row=4, column=0, padx=20, pady=10, sticky='w')
         
@@ -360,7 +300,7 @@ class EditItemDialog(ctk.CTkToplevel):
         self.amount_entry.insert(0, self.values[4])
         self.amount_entry.grid(row=4, column=1, padx=20, pady=10, sticky='ew')
 
-        # Dropdown für Unit
+        # Dropdown für Mengeneinheit
         unit_label = ctk.CTkLabel(self, text=labels[5])
         unit_label.grid(row=5, column=0, padx=20, pady=10, sticky='w')
         
@@ -368,15 +308,15 @@ class EditItemDialog(ctk.CTkToplevel):
         unit_dropdown = ctk.CTkOptionMenu(self, variable=self.unit_var, values=["kg", "g", "L", "ml"])
         unit_dropdown.grid(row=5, column=1, padx=20, pady=10, sticky='ew')
 
-        # Entry für Expiry Date
+        # Eingabefeld für Ablaufdatum
         expiry_label = ctk.CTkLabel(self, text=labels[6])
         expiry_label.grid(row=6, column=0, padx=20, pady=10, sticky='w')
         
-        self.expiry_entry = ctk.CTkEntry(self)
-        self.expiry_entry.insert(0, self.values[6])
+        self.expiry_entry = DateEntry(self, date_pattern="yyyy-mm-dd")
+        self.expiry_entry.set_date(self.values[6])
         self.expiry_entry.grid(row=6, column=1, padx=20, pady=10, sticky='ew')
 
-        # Entry für Notes
+        # Eingabefeld für sonstige Informationen
         notes_label = ctk.CTkLabel(self, text=labels[7])
         notes_label.grid(row=7, column=0, padx=20, pady=10, sticky='w')
         
@@ -384,7 +324,7 @@ class EditItemDialog(ctk.CTkToplevel):
         self.notes_entry.insert(0, self.values[7])
         self.notes_entry.grid(row=7, column=1, padx=20, pady=10, sticky='ew')
 
-        # Save Button
+        # Speichern-Button
         save_button = ctk.CTkButton(self, text="Speichern", command=self.save)
         save_button.grid(row=8, column=0, columnspan=2, padx=20, pady=20)
 
@@ -399,7 +339,7 @@ class EditItemDialog(ctk.CTkToplevel):
         
         # Neue Werte sammeln
         new_values = [
-            self.values[0],  # ID beibehalten
+            # ID beibehalten
             self.storage_var.get(),
             self.food_entry.get(),
             self.food_type_var.get(),
@@ -415,17 +355,18 @@ class EditItemDialog(ctk.CTkToplevel):
         self.destroy()
 
     def validate_inputs(self):
-        # Validierung des Expiry Date Formats
+        # Validierung des Ablaufdatumsformats
         try:
             datetime.datetime.strptime(self.expiry_entry.get(), '%Y-%m-%d')
         except ValueError:
-            messagebox.showerror("Error", "Expiry date must be in the format YYYY-MM-DD.")
+            messagebox.showerror("Fehler", "Das Ablaufdatum muss im Format JJJJ-MM-TT vorliegen.")
             return False
 
         # Weitere Validierungen können hier hinzugefügt werden
         if not self.food_entry.get():
-            messagebox.showerror("Error", "Food name cannot be empty.")
+            messagebox.showerror("Fehler", "Der Name des Lebensmittels darf nicht leer sein.")
             return False
 
         # Alle Eingaben sind gültig
         return True
+

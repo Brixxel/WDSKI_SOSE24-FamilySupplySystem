@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
+from tkinter import *
 from PIL import Image, ImageTk
 import io
 import requests
@@ -92,32 +93,35 @@ class RecipeApp(ctk.CTkFrame):
         self.input_frame = ctk.CTkFrame(self, width=200, height=600)
         self.input_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ns")
 
-        self.label = ctk.CTkLabel(self.input_frame, text="Select family group:")
+        self.label = ctk.CTkLabel(self.input_frame, text="Familiengruppe auswählen:")
         self.label.grid(row=0, column=0, padx=10, pady=(10, 5), sticky="w")
 
         self.dropdown_group_name = ctk.CTkOptionMenu(self.input_frame, variable=self.group_name_var, values=self.group_names, command=self.fill_storages)
         self.dropdown_group_name.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
-        self.label = ctk.CTkLabel(self.input_frame, text="Select storage:")
+        self.label = ctk.CTkLabel(self.input_frame, text="Speicherort auswählen:")
         self.label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
 
         self.dropdown_storage_name = ctk.CTkOptionMenu(self.input_frame, variable=self.storage_name_var, command=self.fill_ingredients)
         self.dropdown_storage_name.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
 
-        self.label = ctk.CTkLabel(self.input_frame, text="Select ingredients:")
+        self.label = ctk.CTkLabel(self.input_frame, text="Zutaten auswählen:")
         self.label.grid(row=4, column=0, padx=10, pady=10, sticky="w")
 
         self.check_buttons_frame = ctk.CTkFrame(self.input_frame)
         self.check_buttons_frame.grid(row=5, column=0, padx=10, pady=10, sticky="w")
 
         self.vegetarian_var = tk.BooleanVar()
-        self.vegetarian_check = ctk.CTkCheckBox(self.input_frame, text="Vegetarian", variable=self.vegetarian_var)
+        self.vegetarian_check = ctk.CTkCheckBox(self.input_frame, text="Vegetarisch", variable=self.vegetarian_var)
         self.vegetarian_check.grid(row=6, column=0, padx=10, pady=10, sticky="w")
 
-        self.search_button = ctk.CTkButton(self.input_frame, text="Search Recipes", command=self.on_search_button_click)
+        lupe_img_path = r"Version_2\icons\lupe.png"
+        search_item_img = PhotoImage(file=lupe_img_path)
+
+        self.search_button = ctk.CTkButton(self.input_frame, image=search_item_img, compound="left", text="Rezepte suchen", command=self.on_search_button_click)
         self.search_button.grid(row=7, column=0, padx=10, pady=10, sticky="w")
 
-        self.save_button = ctk.CTkButton(self.input_frame, text="Save Selected Recipes", command=self.save_selected_recipes)
+        self.save_button = ctk.CTkButton(self.input_frame, text="Ausgewählte Rezepte speichern", command=self.save_selected_recipes)
         self.save_button.grid(row=8, column=0, padx=10, pady=10, sticky="w")
 
         # Show Saved Recipes Button jetzt vor dem Delete Button
@@ -147,6 +151,10 @@ class RecipeApp(ctk.CTkFrame):
         self.shopping_list_button = ctk.CTkButton(self.input_frame, text="Generate Shopping List", command=self.generate_shopping_list)
         self.shopping_list_button.grid(row=11, column=0, padx=10, pady=10, sticky="w")
 
+        self.show_saved_button = ctk.CTkButton(self.input_frame, text="Gespeicherte Rezepte anzeigen", command=self.show_saved_recipes)
+        self.show_saved_button.grid(row=9, column=0, padx=10, pady=10, sticky="w")
+
+
         style = ttk.Style()
         style.configure("My.TSeparator", background="#2b2b2b")
 
@@ -160,7 +168,7 @@ class RecipeApp(ctk.CTkFrame):
         selected = [ingredient for ingredient, var in self.selected_ingredients.items() if var.get()]
 
         if not selected:
-            self.display_message("Please select at least one ingredient.")
+            self.display_message("Bitte wähle mindestens eine Zutat aus.")
             return
 
         try:
@@ -240,7 +248,7 @@ class RecipeApp(ctk.CTkFrame):
         selected_recipes = [label for label, var in self.selected_recipes.items() if var.get()]
 
         if not selected_recipes:
-            self.display_message("Please select at least one recipe to save.")
+            self.display_message("Bitte wähle mindestens ein Rezept zum Speichern aus.")
             return
         
         #try and error besonders fürs Programmieren, aber auch für nachher nicht schlecht
@@ -263,9 +271,9 @@ class RecipeApp(ctk.CTkFrame):
                         image_url=recipe['image'],
                         group_name=self.group_name_var.get()
                     )
-            self.display_message("Recipes saved successfully.")
+            self.display_message("Rezepte erfolgreich gespeichert.")
         except Exception as e:
-            self.display_message(f"Error saving recipes: {str(e)}")
+            self.display_message(f"Fehler beim Speichern der Rezepte: {str(e)}")
 
 
     def show_saved_recipes(self):
