@@ -35,7 +35,7 @@ class Menu(ctk.CTk):
         # }
 
         self.title("KitchenKeeper")
-        self.geometry("1100x700")
+        self.geometry("1300x700")
         self.set_icon_based_on_mode()
         self.create_widgets()
 

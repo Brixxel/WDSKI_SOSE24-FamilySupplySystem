@@ -74,16 +74,15 @@ class FoodDisplayApp(ctk.CTkFrame):
      ### ---------------------- Steuerungs-Funktionen -------------------------- ###
 
     def fill_table(self, *args):
-        # Optional: `args` verwenden, um den Wert aus dem Dropdown-Menü zu berücksichtigen
         selected_group = self.group_name_var.get()
         data = self.db.get_all_data(selected_group)
         
         # Tabelle leeren
         self.tree.delete(*self.tree.get_children())
 
-        # Daten in die Tabelle einfügen
+        # Daten in die Tabelle einfügen, ohne die ID anzuzeigen
         for row in data:
-            self.tree.insert("", "end", values=row[1:])  # Ignoriere die ID-Spalte beim Einfügen
+            self.tree.insert("", "end", iid=row[0], values=row[1:])  # Die ID wird als `iid` gesetzt, aber nicht in den Werten angezeigt
         
         self.adjust_column_widths()  # Spaltenbreiten anpassen
             
@@ -97,11 +96,14 @@ class FoodDisplayApp(ctk.CTkFrame):
         selected_item = self.tree.focus()
         if selected_item:
             values = self.tree.item(selected_item, "values")
-            EditItemDialog(self, values, self.update_item, self.db, self.group_name_var.get())
+            original_values = (selected_item,) + values  # Kombiniere die ID mit den sichtbaren Werten
+            EditItemDialog(self, original_values, self.update_item, self.db, self.group_name_var.get())
 
     def update_item(self, original_values, new_values):
         group_name = self.group_name_var.get()
-        entry_id = original_values[0]  # Angenommen, die ID ist in original_values[0]
+        entry_id = original_values[0]  # Die ID kommt aus original_values[0]
+        print(original_values)
+        print(new_values)
 
         self.db.update_food_item(entry_id, group_name, new_values)
         self.fill_table()
@@ -260,7 +262,7 @@ class EditItemDialog(ctk.CTkToplevel):
         storage_label = ctk.CTkLabel(self, text=labels[0])
         storage_label.grid(row=0, column=0, padx=20, pady=10, sticky='w')
         
-        self.storage_var = tk.StringVar(value=self.values[0])
+        self.storage_var = tk.StringVar(value=self.values[1])
         storage_dropdown = ctk.CTkOptionMenu(self, variable=self.storage_var, values=self.db.get_all_storages_from_family(self.group_name))
         storage_dropdown.grid(row=0, column=1, padx=20, pady=10, sticky='ew')
 
@@ -269,14 +271,14 @@ class EditItemDialog(ctk.CTkToplevel):
         food_label.grid(row=1, column=0, padx=20, pady=10, sticky='w')
         
         self.food_entry = ctk.CTkEntry(self)
-        self.food_entry.insert(0, self.values[1])
+        self.food_entry.insert(0, self.values[2])
         self.food_entry.grid(row=1, column=1, padx=20, pady=10, sticky='ew')
 
         # Dropdown für Lebensmitteltyp
         food_type_label = ctk.CTkLabel(self, text=labels[2])
         food_type_label.grid(row=2, column=0, padx=20, pady=10, sticky='w')
         
-        self.food_type_var = tk.StringVar(value=self.values[2])
+        self.food_type_var = tk.StringVar(value=self.values[3])
         food_type_dropdown = ctk.CTkOptionMenu(self, variable=self.food_type_var, values=[
             "Rohkost", "Gekochtes", "Gegrilltes", "Gebratenes", "Gebäck", "Eingemachtes", 
             "Zutat", "Fermentiertes", "Süßes", "Snack", "Getränk", "Suppe", "Salat", 
@@ -289,7 +291,7 @@ class EditItemDialog(ctk.CTkToplevel):
         ingredients_label.grid(row=3, column=0, padx=20, pady=10, sticky='w')
         
         self.ingredients_entry = ctk.CTkEntry(self)
-        self.ingredients_entry.insert(0, self.values[3])
+        self.ingredients_entry.insert(0, self.values[4])
         self.ingredients_entry.grid(row=3, column=1, padx=20, pady=10, sticky='ew')
 
         # Eingabefeld für Menge
@@ -297,14 +299,14 @@ class EditItemDialog(ctk.CTkToplevel):
         amount_label.grid(row=4, column=0, padx=20, pady=10, sticky='w')
         
         self.amount_entry = ctk.CTkEntry(self)
-        self.amount_entry.insert(0, self.values[4])
+        self.amount_entry.insert(0, self.values[5])
         self.amount_entry.grid(row=4, column=1, padx=20, pady=10, sticky='ew')
 
         # Dropdown für Mengeneinheit
         unit_label = ctk.CTkLabel(self, text=labels[5])
         unit_label.grid(row=5, column=0, padx=20, pady=10, sticky='w')
         
-        self.unit_var = tk.StringVar(value=self.values[5])
+        self.unit_var = tk.StringVar(value=self.values[6])
         unit_dropdown = ctk.CTkOptionMenu(self, variable=self.unit_var, values=["kg", "g", "L", "ml"])
         unit_dropdown.grid(row=5, column=1, padx=20, pady=10, sticky='ew')
 
@@ -313,7 +315,7 @@ class EditItemDialog(ctk.CTkToplevel):
         expiry_label.grid(row=6, column=0, padx=20, pady=10, sticky='w')
         
         self.expiry_entry = DateEntry(self, date_pattern="yyyy-mm-dd")
-        self.expiry_entry.set_date(self.values[6])
+        self.expiry_entry.set_date(self.values[7])
         self.expiry_entry.grid(row=6, column=1, padx=20, pady=10, sticky='ew')
 
         # Eingabefeld für sonstige Informationen
@@ -321,7 +323,7 @@ class EditItemDialog(ctk.CTkToplevel):
         notes_label.grid(row=7, column=0, padx=20, pady=10, sticky='w')
         
         self.notes_entry = ctk.CTkEntry(self)
-        self.notes_entry.insert(0, self.values[7])
+        self.notes_entry.insert(0, self.values[8])
         self.notes_entry.grid(row=7, column=1, padx=20, pady=10, sticky='ew')
 
         # Speichern-Button
