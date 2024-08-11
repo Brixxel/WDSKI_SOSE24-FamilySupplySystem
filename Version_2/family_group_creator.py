@@ -64,6 +64,7 @@ class FamilyGroupApp(ctk.CTkFrame):
 
         # Füge die Gruppeninformationen zur Datenbank hinzu
         self.db.add_family_group(group_name, password, hashed_password, members, storages)
+        self.db.add_group_to_person_and_person_to_group(self.username, group_name)
         messagebox.showinfo("Erfolg", "Familiengruppe erfolgreich erstellt!")
         self.clear_entries()
 
