@@ -254,5 +254,22 @@ class GoogleSheetDB:
         else:
             raise Exception(f"Recipe '{recipe_name}' not found or does not belong to the group '{group_name}'.")
 
+    def generate_shopping_list(self, group_name):
+        # Beispielhafte Implementierung
+        # Du müsstest dies mit deiner echten Logik ersetzen
+        shopping_list = []
+        
+        # Hol dir alle gespeicherten Rezepte für diese Gruppe
+        recipes = self.get_saved_recipes(group_name)
+        
+        # Füge Logik hinzu, um benötigte Zutatenmengen zu berechnen, etc.
+        # Hier nur eine Beispielausgabe
+        for recipe in recipes:
+            for ingredient in recipe['ingredients'].split(', '):
+                # Überprüfen, ob die Zutat bereits in der Einkaufsliste enthalten ist
+                if ingredient not in shopping_list:
+                    shopping_list.append(ingredient)
+
+        return shopping_list
 
 

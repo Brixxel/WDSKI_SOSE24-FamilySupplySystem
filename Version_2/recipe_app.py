@@ -37,6 +37,7 @@ class RecipeApp(ctk.CTkFrame):
         self.selected_ingredients = {}
         self.images = []
         self.selected_recipes = {}
+        self.deepL_key = data["api_key_deepL"]
 
         self.create_widgets()
         self.fill_storages() 
@@ -137,6 +138,9 @@ class RecipeApp(ctk.CTkFrame):
 
         self.canvas_frame.bind("<Configure>", self.on_canvas_configure)
 
+        self.shopping_list_button = ctk.CTkButton(self.input_frame, text="Generate Shopping List", command=self.generate_shopping_list)
+        self.shopping_list_button.grid(row=11, column=0, padx=10, pady=10, sticky="w")
+
         style = ttk.Style()
         style.configure("My.TSeparator", background="#2b2b2b")
 
@@ -229,14 +233,22 @@ class RecipeApp(ctk.CTkFrame):
             return
 
         try:
+            translator = DeeplTranslator(api_key=self.deepL_key, source="en", target="de")
             for recipe_name in selected_recipes:
-                # Hier sammeln wir die Daten des Rezepts, die gespeichert werden sollen
                 recipe_data = next((recipe for recipe in self.hits if recipe['recipe']['label'] == recipe_name), None)
                 if recipe_data:
                     recipe = recipe_data['recipe']
+                    
+                    # Übersetze den Rezeptnamen ins Deutsche
+                    translated_recipe_name = translator.translate(recipe_name)
+                    
+                    # Übersetze die Zutaten ins Deutsche
+                    translated_ingredients = translator.translate(", ".join(recipe['ingredientLines'])).split(", ")
+                    
+                    # Speichern der übersetzten Rezeptnamen und Zutaten
                     self.db.save_recipe(
-                        recipe_name=recipe_name,
-                        ingredients=recipe['ingredientLines'],
+                        recipe_name=translated_recipe_name,  # Verwende den übersetzten Rezeptnamen
+                        ingredients=translated_ingredients,
                         url=recipe['url'],
                         image_url=recipe['image'],
                         group_name=self.group_name_var.get()
@@ -244,6 +256,7 @@ class RecipeApp(ctk.CTkFrame):
             self.display_message("Recipes saved successfully.")
         except Exception as e:
             self.display_message(f"Error saving recipes: {str(e)}")
+
 
     def show_saved_recipes(self):
         try:
@@ -258,7 +271,6 @@ class RecipeApp(ctk.CTkFrame):
             self.images.clear()
             self.selected_recipes.clear()
 
-            translator = DeeplTranslator(api_key=deepL_key, source="en", target="de")
             y_position = 0
             for recipe in saved_recipes:
                 # Variable für die Auswahl des Rezepts
@@ -267,8 +279,7 @@ class RecipeApp(ctk.CTkFrame):
                 check_button = ctk.CTkCheckBox(self.canvas_frame, text="", variable=var)
                 check_button.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
 
-                translated_recipe_name = translator.translate(recipe['recipe_name'])
-                label = ctk.CTkLabel(self.canvas_frame, text=f"Rezept: {translated_recipe_name}", bg_color="#2b2b2b")
+                label = ctk.CTkLabel(self.canvas_frame, text=f"Rezept: {recipe['recipe_name']}", bg_color="#2b2b2b")
                 label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
                 y_position += 1
 
@@ -277,8 +288,7 @@ class RecipeApp(ctk.CTkFrame):
                 url_label.bind("<Button-1>", self.open_url)
                 y_position += 1
 
-                translated_ingredients = translator.translate(", ".join(recipe['ingredients'].split(', ')))
-                ingredients_label = ctk.CTkLabel(self.canvas_frame, text=f"Zutaten: {translated_ingredients}", bg_color="#2b2b2b", wraplength=500)
+                ingredients_label = ctk.CTkLabel(self.canvas_frame, text=f"Zutaten: {recipe['ingredients']}", bg_color="#2b2b2b", wraplength=500)
                 ingredients_label.grid(row=y_position, column=1, padx=10, pady=10, sticky="w")
                 y_position += 1
 
@@ -309,6 +319,7 @@ class RecipeApp(ctk.CTkFrame):
         except Exception as e:
             self.display_message(f"Fehler beim Laden der gespeicherten Rezepte: {str(e)}")
 
+
     def delete_selected_recipes(self):
         selected_recipes = [label for label, var in self.selected_recipes.items() if var.get()]
 
@@ -325,6 +336,29 @@ class RecipeApp(ctk.CTkFrame):
             self.show_saved_recipes()  # Aktualisiere die Liste der gespeicherten Rezepte
         except Exception as e:
             self.display_message(f"Error deleting recipes: {str(e)}")
+
+    def generate_shopping_list(self):
+        shopping_list = self.db.generate_shopping_list(self.group_name_var.get())
+        self.display_shopping_list(shopping_list)
+
+    def display_shopping_list(self, shopping_list):
+        # Bereinige vorher das Canvas
+        for widget in self.canvas_frame.winfo_children():
+            widget.destroy()
+
+        if not shopping_list:
+            self.display_message("Alle Zutaten sind verfügbar, keine Einkäufe erforderlich!")
+            return
+
+        y_position = 0
+        for ingredient in shopping_list:
+            text = f"Zutat: {ingredient}"
+            
+            label = ctk.CTkLabel(self.canvas_frame, text=text, bg_color="#2b2b2b")
+            label.grid(row=y_position, column=0, padx=10, pady=10, sticky="w")
+            y_position += 1
+
+        self.canvas_frame.after(100, self.on_canvas_configure, None)
 
 
 
