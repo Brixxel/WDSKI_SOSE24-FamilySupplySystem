@@ -100,7 +100,7 @@ class Menu(ctk.CTk):
 
         self.scaling_label = ctk.CTkLabel(self.menu_frame, text="UI-Skalierung:", anchor="w")
         self.scaling_label.grid(row=12, column=0, padx=20, pady=(10, 0))
-        self.scaling_optionemenu = ctk.CTkOptionMenu(self.menu_frame, values=["80%", "90%", "100%", "110%", "120%"],
+        self.scaling_optionemenu = ctk.CTkOptionMenu(self.menu_frame, values=["100%", "110%", "120%", "80%", "90%"],
                                                     command=self.change_scaling_event)
         self.scaling_optionemenu.grid(row=13, column=0, padx=20, pady=(10, 20))
 
