@@ -1,17 +1,12 @@
 import os
-import tkinter as tk
 from tkinter import *
-from tkinter import ttk
 import customtkinter as ctk
-from tkinter import messagebox
-from family_group_creator import FamilyGroupApp
+from PIL import Image
 from food_item_creator import FoodItemApp
 from google_sheet_db import GoogleSheetDB
 from account_manager import AccountManager
 from food_display_app import FoodDisplayApp
 from recipe_app import RecipeApp
-from oauth2client.service_account import ServiceAccountCredentials
-import gspread
 
 ctk.set_default_color_theme("green")
 
@@ -19,7 +14,6 @@ ctk.set_default_color_theme("green")
 sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
 script_dir = os.path.dirname(__file__)
 credentials_file = os.path.join(script_dir, "credentials.json")
-
 
 
 class Menu(ctk.CTk):
@@ -40,9 +34,12 @@ class Menu(ctk.CTk):
         #     "groups" : []
         # }
         
-        self.title("Family Supply System")
+        self.title("KitchenKeeper")
         self.geometry("800x600")
+        self.set_icon_based_on_mode()
         self.create_widgets()
+
+    ## linkes Menü erstellen 
 
     def create_widgets(self):
         self.grid_columnconfigure(1, weight=1)
@@ -52,28 +49,43 @@ class Menu(ctk.CTk):
         self.menu_frame.grid(row=0, column=0, rowspan=4, sticky="nswe")
         self.menu_frame.grid_rowconfigure(9, weight=1)
 
-        self.menu_label = ctk.CTkLabel(self.menu_frame, text="Menü", font=("Arial", 16))
-        self.menu_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+        # Bilder für hellen und dunklen Modus laden
+        menu_icon = ctk.CTkImage(light_image=Image.open("Version_2\icons/menu_dark.png"), dark_image=Image.open("Version_2\icons/menu_light.png"))
+        
+        # Label mit Icon anstelle von Text
+        self.menu_label = ctk.CTkLabel(self.menu_frame, image=menu_icon, text="")
+        self.menu_label.grid(row=0, column=0, padx=20, pady=(20, 20))
 
-        self.add_item_button = ctk.CTkButton(self.menu_frame, text="Lebensmittel hinzufügen", command=self.show_add_food_item)
+        # Bildpfade anpassen und Bilder laden
+        add_item_img_path = r"Version_2\icons\plus.png"
+        view_items_img_path = r"Version_2\icons\apple.png"
+        recipe_img_path = r"Version_2\icons\book.png"
+
+        add_item_img = PhotoImage(file=add_item_img_path)
+        view_items_img = PhotoImage(file=view_items_img_path)
+        recipe_img = PhotoImage(file=recipe_img_path)
+
+        # Button für "Lebensmittel hinzufügen" mit Icon
+        self.add_item_button = ctk.CTkButton(self.menu_frame, text="Lebensmittel hinzufügen", image=add_item_img, compound="left", command=self.show_add_food_item)
         self.add_item_button.grid(row=2, column=0, padx=20, pady=10)
 
-        self.view_items_button = ctk.CTkButton(self.menu_frame, text="Lebensmittel anzeigen", command=self.show_view_food_items)
+        # Button für "Lebensmittel anzeigen" mit Icon
+        self.view_items_button = ctk.CTkButton(self.menu_frame, text="Lebensmittel anzeigen", image=view_items_img, compound="left", command=self.show_view_food_items)
         self.view_items_button.grid(row=3, column=0, padx=20, pady=10)
 
-        self.recipe_button = ctk.CTkButton(self.menu_frame, text="Rezeptfinder", command=self.show_recipe_finder)
+        # Button für "Rezeptfinder" mit Icon
+        self.recipe_button = ctk.CTkButton(self.menu_frame, text="Rezeptfinder", image=recipe_img, compound="left", command=self.show_recipe_finder)
         self.recipe_button.grid(row=4, column=0, padx=20, pady=10)
 
-#         self.view_recipes_button = ctk.CTkButton(self.menu_frame, text="Rezepte anzeigen", command=self.show_view_recipes)
-#         self.view_recipes_button.grid(row=4, column=0, padx=20, pady=10)
-
-#         self.view_shopping_list_button = ctk.CTkButton(self.menu_frame, text="Einkaufsliste anzeigen", command=self.show_view_shopping_list)
-#         self.view_shopping_list_button.grid(row=5, column=0, padx=20, pady=10)
-        
 
         ### Account-Steuerung
         
-        self.manage_account_button = ctk.CTkButton(self.menu_frame, text="Mein Konto", command= self.open_account_manager)
+        # Bildpfad anpassen und Bild laden
+        account_img_path = r"Version_2\icons\account.png"
+        account_img = PhotoImage(file=account_img_path)
+
+        # Button erstellen mit Icon
+        self.manage_account_button = ctk.CTkButton(self.menu_frame, text="Mein Konto", image=account_img, compound="left", command=self.open_account_manager)
         self.manage_account_button.grid(row=1, column=0, padx=20, pady=10)
                 
         
@@ -146,31 +158,6 @@ class Menu(ctk.CTk):
             label = ctk.CTkLabel(self.main_frame, text="Bitte einloggen oder registrieren", font=("Arial", 20))
             label.pack(pady=200)
 
-    def show_view_recipes(self):
-        if self.Account["logged_in"]:
-            for widget in self.main_frame.winfo_children():
-                widget.destroy()
-                # Dummy edit account function
-                messagebox.showinfo("Update", "Kommt bald!")
-        
-        else:
-            for widget in self.main_frame.winfo_children():
-                widget.destroy()
-            label = ctk.CTkLabel(self.main_frame, text="Bitte einloggen oder registrieren", font=("Arial", 20))
-            label.pack(pady=200)
-
-    def show_view_shopping_list(self):
-        if self.Account["logged_in"]:
-            for widget in self.main_frame.winfo_children():
-                widget.destroy()
-                # Dummy edit account function
-                messagebox.showinfo("Update", "Kommt bald!")
-        
-        else:
-            for widget in self.main_frame.winfo_children():
-                widget.destroy()
-            label = ctk.CTkLabel(self.main_frame, text="Bitte einloggen oder registrieren", font=("Arial", 20))
-            label.pack(pady=200)
             
             
     ### ---- Account-Manager - Funktionen: ---- ###
@@ -193,8 +180,21 @@ class Menu(ctk.CTk):
     def change_scaling_event(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         ctk.set_widget_scaling(new_scaling_float)
+    
+    def set_icon_based_on_mode(self):
+        
+        current_mode = ctk.get_appearance_mode()
 
-### öfnen des Fensters ###
+        if current_mode == "Dark":
+            icon_path = r"Version_2\icons\kühlschrank_light.ico"
+        if current_mode == "System":
+            icon_path = r"Version_2\icons\kühlschrank_light.ico"
+        elif current_mode == "Light":
+            icon_path = r"Version_2\icons\kühlschrank_dark.ico"
+        self.iconbitmap(icon_path)
+
+### öffnen des Fensters ###
+
 if __name__ == '__main__':
     app = Menu()
     icon_path = os.path.dirname(__file__)
@@ -203,4 +203,5 @@ if __name__ == '__main__':
         app.iconbitmap(icon_path)
     else:
         print("Icon file not found!")
+
     app.mainloop()

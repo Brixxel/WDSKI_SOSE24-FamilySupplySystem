@@ -15,9 +15,9 @@ class FoodItemApp(ctk.CTkFrame):
 
     def create_widgets(self):
 
-
         # Aus den Gruppen denen der Account angehört, soll er auswählen können
         group_names = self.Account["groups"]
+
         # Wenn die Anzahl der Gruppen min 1 ist, sollen diese als Inhalt des Dropdown-Menüs zur Verfügung stehen:
         if len(group_names) >= 1 : 
             storage_names = self.db.get_all_storages_from_family("dieReglers")
@@ -138,8 +138,7 @@ class FoodItemApp(ctk.CTkFrame):
             messagebox.showerror("Fehler", "Das Datum muss im Format JJJJ-MM-TT vorliegen!")
             return
 
-        food_item = [group_name, storage_name, food, food_type, food_ingredients, food_amount, amount_type, expire_day, sonst_info]
-
+        # Überprüfung ob Gruppe existiert:
         if not self.db.group_name_exists(group_name):
             messagebox.showerror("Fehler", "Gruppenname existiert nicht!")
             return
@@ -150,7 +149,6 @@ class FoodItemApp(ctk.CTkFrame):
 
 
     def clear_entries(self):
-        #self.group_name_var.set("")
         self.storage_name_var.set("")
         self.entry_food.delete(0, tk.END)
         self.entry_food_type.set("")
