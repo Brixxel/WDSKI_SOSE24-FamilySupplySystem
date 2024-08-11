@@ -10,6 +10,7 @@ from api_module import search_recipes
 from deep_translator import DeeplTranslator
 import json
 from google_sheet_db import GoogleSheetDB  
+import gspread
 
 script_dir = os.path.dirname(__file__)
 credentials_file = os.path.join(script_dir, "credentials.json")
@@ -43,15 +44,21 @@ class RecipeApp(ctk.CTkFrame):
         self.fill_storages() 
 
     def fill_storages(self, *args): #*args damit die Ereignisse von tkinter keine Probleme verursachen
+        try:
+            selected_group = self.group_name_var.get()
+            self.storages = self.db.get_storage_names(selected_group)
 
-        selected_group = self.group_name_var.get()
-        self.storages = self.db.get_storage_names(selected_group)
-
-        # UI-Elemente für Storage-Auswahl aktualisieren; damit Scrollbar geladen wird
-        self.dropdown_storage_name.configure(values=self.storages)
-        if self.storages:
-            self.storage_name_var.set(self.storages[0])
-            self.fill_ingredients()
+            # UI-Elemente für Storage-Auswahl aktualisieren; damit Scrollbar geladen wird
+            self.dropdown_storage_name.configure(values=self.storages)
+            if self.storages:
+                self.storage_name_var.set(self.storages[0])
+                self.fill_ingredients()
+            else:
+                self.display_message("Keine Speicherdaten gefunden für die ausgewählte Gruppe.")
+        except gspread.exceptions.WorksheetNotFound: #try and error, fall User in keiner Familie
+            self.display_message("Der Nutzer ist keiner Gruppe (Familie) zugeordnet. Bitte fügen Sie den Nutzer einer Gruppe hinzu.")
+        except Exception as e:
+            self.display_message(f"Ein unerwarteter Fehler ist aufgetreten: {str(e)}")
 
     def fill_ingredients(self, *args):
         selected_group = self.group_name_var.get()
