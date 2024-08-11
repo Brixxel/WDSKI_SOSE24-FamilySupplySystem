@@ -129,7 +129,7 @@ class RecipeApp(ctk.CTkFrame):
         self.show_saved_button.grid(row=9, column=0, padx=10, pady=10, sticky="w")
 
         # Delete Selected Recipes Button jetzt nach dem Show Button
-        self.delete_button = ctk.CTkButton(self.input_frame, text="Delete Selected Recipes", command=self.delete_selected_recipes)
+        self.delete_button = ctk.CTkButton(self.input_frame, text="Ausgewähltes Rezept löschen", command=self.delete_selected_recipes)
         self.delete_button.grid(row=10, column=0, padx=10, pady=10, sticky="w")
 
         self.output_frame = ctk.CTkFrame(self, width=600, height=600)
@@ -148,7 +148,7 @@ class RecipeApp(ctk.CTkFrame):
 
         self.canvas_frame.bind("<Configure>", self.on_canvas_configure)
 
-        self.shopping_list_button = ctk.CTkButton(self.input_frame, text="Generate Shopping List", command=self.generate_shopping_list)
+        self.shopping_list_button = ctk.CTkButton(self.input_frame, text="Einkaufsliste erstellen", command=self.generate_shopping_list)
         self.shopping_list_button.grid(row=11, column=0, padx=10, pady=10, sticky="w")
 
         self.show_saved_button = ctk.CTkButton(self.input_frame, text="Gespeicherte Rezepte anzeigen", command=self.show_saved_recipes)
