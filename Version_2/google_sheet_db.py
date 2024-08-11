@@ -237,15 +237,18 @@ class GoogleSheetDB:
             sheet.delete_rows(cell.row)
 
     def save_recipe(self, recipe_name, ingredients, url, image_url, group_name):
+        #um Rezepte speichern zu können
         recipe_id = str(uuid.uuid4())
         ingredients_str = ', '.join(ingredients) if isinstance(ingredients, list) else ingredients
         self.recipes_sheet.append_row([recipe_id, recipe_name, ingredients_str, url, image_url, group_name])
 
     def get_saved_recipes(self, group_name):
+        #gespeicherte Rezepte abrufen
         records = self.recipes_sheet.get_all_records()
         return [record for record in records if record['group_name'] == group_name]
     
     def delete_recipe(self, recipe_name, group_name):
+        #um gespeicherte Rezepte zu löschen
         sheet = self.recipes_sheet
         cell = sheet.find(recipe_name)
         
@@ -255,18 +258,14 @@ class GoogleSheetDB:
             raise Exception(f"Recipe '{recipe_name}' not found or does not belong to the group '{group_name}'.")
 
     def generate_shopping_list(self, group_name):
-        # Beispielhafte Implementierung
-        # Du müsstest dies mit deiner echten Logik ersetzen
         shopping_list = []
         
         # Hol dir alle gespeicherten Rezepte für diese Gruppe
         recipes = self.get_saved_recipes(group_name)
         
-        # Füge Logik hinzu, um benötigte Zutatenmengen zu berechnen, etc.
-        # Hier nur eine Beispielausgabe
+
         for recipe in recipes:
             for ingredient in recipe['ingredients'].split(', '):
-                # Überprüfen, ob die Zutat bereits in der Einkaufsliste enthalten ist
                 if ingredient not in shopping_list:
                     shopping_list.append(ingredient)
 

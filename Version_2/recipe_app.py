@@ -42,7 +42,7 @@ class RecipeApp(ctk.CTkFrame):
         self.create_widgets()
         self.fill_storages() 
 
-    def fill_storages(self, *args):
+    def fill_storages(self, *args): #*args damit die Ereignisse von tkinter keine Probleme verursachen
 
         selected_group = self.group_name_var.get()
         self.storages = self.db.get_storage_names(selected_group)
@@ -57,15 +57,13 @@ class RecipeApp(ctk.CTkFrame):
         selected_group = self.group_name_var.get()
         selected_storage = self.storage_name_var.get()
 
-        # Definiere die gewünschten food_types
-        desired_food_types = ['Rohkost', 'Zutat']  # Hier kannst du die gewünschten food_types hinzufügen
+        # Nur einige Zutaten werden angezeigt, damit man nicht Essen, was als gekocht gekennzeichnet ist auswählen kann
+        desired_food_types = ['Rohkost', 'Zutat']  
 
-        # Rufe Zutaten ab, die zu den gewünschten food_types gehören
         all_ingredients = self.db.get_food_items_from_storage(selected_group, selected_storage, desired_food_types)
 
         self.ingredients = [item['name'] for item in all_ingredients]
 
-        # Lösche die aktuellen UI-Elemente und bereite sie für neue Zutaten vor
         for widget in self.check_buttons_frame.winfo_children():
             widget.destroy()
         self.selected_ingredients.clear()
@@ -79,6 +77,7 @@ class RecipeApp(ctk.CTkFrame):
 
 
     def create_widgets(self):
+        #Baut die gesammte GUI-Oberfläche auf für die Rezept-API
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=4)
         self.grid_rowconfigure(0, weight=1)
@@ -147,9 +146,10 @@ class RecipeApp(ctk.CTkFrame):
 
 
     def on_canvas_configure(self, event=None):
-        self.output_canvas.configure(scrollregion=self.output_canvas.bbox("all"))
+        self.output_canvas.configure(scrollregion=self.output_canvas.bbox("all")) #Scrollbar wird dem Bereich angepasst
 
     def on_search_button_click(self):
+        #Ruft die Rezepte ab mit den ausgwählten Zutaten
         selected = [ingredient for ingredient, var in self.selected_ingredients.items() if var.get()]
 
         if not selected:
@@ -163,16 +163,19 @@ class RecipeApp(ctk.CTkFrame):
             self.display_message(str(e))
 
     def display_message(self, message):
+        #zeigt die Ergebnisse an und löscht bestehende Inhalte um neue zu laden
         for widget in self.canvas_frame.winfo_children():
             widget.destroy()
         label = ctk.CTkLabel(self.canvas_frame, text=message, bg_color="#2b2b2b")
         label.pack()
 
     def open_url(self, event):
+        #damit man die Links von den Rezepten öffnen kann 
         url = event.widget.cget("text")
         webbrowser.open_new_tab(url)
 
     def display_results(self, hits):
+        #Zeigt die Rezepte im Fenster an
         for widget in self.canvas_frame.winfo_children():
             widget.destroy()
         self.images.clear()
@@ -226,12 +229,14 @@ class RecipeApp(ctk.CTkFrame):
             self.display_message("Keine Rezepte gefunden.")
 
     def save_selected_recipes(self):
+        #Speichert die ausgewählten Rezepte in Sheet Tabelle
         selected_recipes = [label for label, var in self.selected_recipes.items() if var.get()]
 
         if not selected_recipes:
             self.display_message("Please select at least one recipe to save.")
             return
-
+        
+        #try and error besonders fürs Programmieren, aber auch für nachher nicht schlecht
         try:
             translator = DeeplTranslator(api_key=self.deepL_key, source="en", target="de")
             for recipe_name in selected_recipes:
@@ -239,15 +244,13 @@ class RecipeApp(ctk.CTkFrame):
                 if recipe_data:
                     recipe = recipe_data['recipe']
                     
-                    # Übersetze den Rezeptnamen ins Deutsche
+                    # Übersetze den Rezeptnamen und Zutaten auf deutsch
                     translated_recipe_name = translator.translate(recipe_name)
-                    
-                    # Übersetze die Zutaten ins Deutsche
                     translated_ingredients = translator.translate(", ".join(recipe['ingredientLines'])).split(", ")
                     
-                    # Speichern der übersetzten Rezeptnamen und Zutaten
+                    # Speichern der Rezeptnamen und Zutaten
                     self.db.save_recipe(
-                        recipe_name=translated_recipe_name,  # Verwende den übersetzten Rezeptnamen
+                        recipe_name=translated_recipe_name,  
                         ingredients=translated_ingredients,
                         url=recipe['url'],
                         image_url=recipe['image'],
@@ -259,6 +262,7 @@ class RecipeApp(ctk.CTkFrame):
 
 
     def show_saved_recipes(self):
+        #Zeigt die gespeicherten Rezepte an 
         try:
             saved_recipes = self.db.get_saved_recipes(self.group_name_var.get())
 
@@ -308,19 +312,20 @@ class RecipeApp(ctk.CTkFrame):
                         y_position += 1
                     except Exception as e:
                         pass
-                        # Bild wird nicht angezeigt, Fehler wird ignoriert
+                        # Da die Bilder von der API nach einiger Zeit nicht mehr geladen werden und dadurch ne Error kommt, wird dann kein Bild mehr angezeigt
 
                 separator = ttk.Separator(self.canvas_frame, orient='horizontal', style="My.TSeparator")
                 separator.grid(row=y_position, column=0, columnspan=2, padx=10, pady=10, sticky="we")
                 y_position += 1
 
             self.canvas_frame.after(100, self.on_canvas_configure, None)
-
+        #wieder try and error zum testen
         except Exception as e:
             self.display_message(f"Fehler beim Laden der gespeicherten Rezepte: {str(e)}")
 
 
     def delete_selected_recipes(self):
+        #löscht die gespeicherten Rezepte aus der Datenbank
         selected_recipes = [label for label, var in self.selected_recipes.items() if var.get()]
 
         if not selected_recipes:
@@ -329,20 +334,20 @@ class RecipeApp(ctk.CTkFrame):
 
         try:
             for recipe_name in selected_recipes:
-                # Rezept aus der Google Sheets-Datenbank löschen
                 self.db.delete_recipe(recipe_name, self.group_name_var.get())
             
             self.display_message("Selected recipes deleted successfully.")
-            self.show_saved_recipes()  # Aktualisiere die Liste der gespeicherten Rezepte
+            self.show_saved_recipes() 
         except Exception as e:
             self.display_message(f"Error deleting recipes: {str(e)}")
 
     def generate_shopping_list(self):
+        #erstellt eine Einkaufliste aus den gespeicherten Rezepten
         shopping_list = self.db.generate_shopping_list(self.group_name_var.get())
         self.display_shopping_list(shopping_list)
 
     def display_shopping_list(self, shopping_list):
-        # Bereinige vorher das Canvas
+        #die generierte Einkausliste wird angezeigt
         for widget in self.canvas_frame.winfo_children():
             widget.destroy()
 
