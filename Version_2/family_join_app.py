@@ -15,21 +15,21 @@ class FamilyJoinApp(ctk.CTkFrame):
     def create_widgets(self):
         
         # Label und Eingabefeld für den Gruppennamen
-        self.label_group_name = ctk.CTkLabel(self, text="Enter Group Name")
+        self.label_group_name = ctk.CTkLabel(self, text="Gruppennamen eingeben")
         self.label_group_name.pack(pady=(20, 0))
 
         self.entry_group_name = ctk.CTkEntry(self)
         self.entry_group_name.pack(pady=(5, 20))
 
         # Label und Eingabefeld für das Passwort
-        self.label_password = ctk.CTkLabel(self, text="Password")
+        self.label_password = ctk.CTkLabel(self, text="Passwort")
         self.label_password.pack(pady=(0, 0))
 
         self.entry_password = ctk.CTkEntry(self, show='*')
         self.entry_password.pack(pady=(5, 20))
 
-        # Button zum Erstellen der Familiengruppe
-        self.create_button = ctk.CTkButton(self, text="Join Family Group", command=self.join_family_group)
+        # Button zum Beitreten der Familiengruppe
+        self.create_button = ctk.CTkButton(self, text="Familiengruppe beitreten", command=self.join_family_group)
         self.create_button.pack(pady=20)
 
     def join_family_group(self):
@@ -41,21 +41,21 @@ class FamilyJoinApp(ctk.CTkFrame):
 
         # Überprüfe, ob der Gruppenname existiert
         if not self.db.group_name_exists(group_name):
-            messagebox.showerror("Error", "Group doesn't exist!")
+            messagebox.showerror("Fehler", "Gruppe existiert nicht!")
             return
 
         # Überprüfe, ob die Passwörter übereinstimmen
         if not self.db.compare_group_password(group_name, hashed_password):
-            messagebox.showerror("Error", "Not the right Password!")
+            messagebox.showerror("Fehler", "Falsches Passwort!")
             return
 
         # Füge die Gruppe zum Account hinzu
         success = self.db.add_group_to_person_and_person_to_group(username, group_name) and self.db.compare_group_password(group_name, hashed_password)
         if success:
-            messagebox.showinfo("Success", "Family Group joined successfully!")
+            messagebox.showinfo("Erfolg", "Erfolgreich der Familiengruppe beigetreten!")
             self.clear_entries()
         else:
-            messagebox.showerror("Error", "Du bist bereits in der Gruppe!")
+            messagebox.showerror("Fehler", "Du bist bereits in der Gruppe!")
 
     def clear_entries(self):
         self.entry_group_name.delete(0, tk.END)

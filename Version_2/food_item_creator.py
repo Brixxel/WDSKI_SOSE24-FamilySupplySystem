@@ -15,6 +15,7 @@ class FoodItemApp(ctk.CTkFrame):
 
     def create_widgets(self):
 
+
         # Aus den Gruppen denen der Account angehört, soll er auswählen können
         group_names = self.Account["groups"]
         # Wenn die Anzahl der Gruppen min 1 ist, sollen diese als Inhalt des Dropdown-Menüs zur Verfügung stehen:
@@ -25,7 +26,7 @@ class FoodItemApp(ctk.CTkFrame):
         self.dropdown_group_name = ctk.CTkOptionMenu(self, variable=self.group_name_var, values=group_names, command=self.update_storage_names)
         self.dropdown_group_name.grid(row=0, column=0, columnspan=2, padx=20, pady=10, sticky='ew')
 
-        self.label_storage_name = ctk.CTkLabel(self, text="Storage Name")
+        self.label_storage_name = ctk.CTkLabel(self, text="Speicherort")
         self.label_storage_name.grid(row=1, column=0, padx=20, pady=10, sticky='w')
 
         self.storage_name_var = tk.StringVar(value=storage_names[0] if storage_names else "")
@@ -35,7 +36,7 @@ class FoodItemApp(ctk.CTkFrame):
         self.label_explanation = ctk.CTkLabel(self, text="Füge hier noch ein paar Informationen über das Essen ein:")
         self.label_explanation.grid(row=2, column=1, padx=20, pady=10, sticky='nsew')
 
-        self.label_food = ctk.CTkLabel(self, text="Food")
+        self.label_food = ctk.CTkLabel(self, text="Lebensmittel")
         self.label_food.grid(row=3, column=0, padx=20, pady=10, sticky='w')
 
         self.entry_food = ctk.CTkEntry(self)
@@ -85,19 +86,20 @@ class FoodItemApp(ctk.CTkFrame):
         self.entry_expire_day = DateEntry(self, date_pattern="yyyy-mm-dd")
         self.entry_expire_day.grid(row=8, column=1, padx=20, pady=10, sticky='ew')
 
-        self.label_sonst_info = ctk.CTkLabel(self, text="weitere Notizen")
+        self.label_sonst_info = ctk.CTkLabel(self, text="Weitere Notizen")
         self.label_sonst_info.grid(row=9, column=0, padx=20, pady=10, sticky='w')
 
         self.entry_sonst_info = ctk.CTkEntry(self)
         self.entry_sonst_info.grid(row=9, column=1, padx=20, pady=10, sticky='ew')
 
-        self.add_button = ctk.CTkButton(self, text="Add Food Item", command=self.add_food_item)
+        self.add_button = ctk.CTkButton(self, text="Lebensmittel hinzufügen", command=self.add_food_item)
         self.add_button.grid(row=10, column=0, columnspan=2, padx=20, pady=20)
 
-        # Setzen der Spalten Gewichte, sodass Die Auswahl sich vergrößert
+        # Setze Spaltengewichte, damit die Widgets horizontal expandieren
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
 
+        # Expandiert, um den gesamten Bildschirm auszufüllen
         self.pack(fill="both", expand=True)
 
     ### --------------  Eingabe Funktione / Handling von Inputs  ------------------ ###
@@ -121,29 +123,29 @@ class FoodItemApp(ctk.CTkFrame):
 
         # Überprüfung der Eingaben:
         if not all([group_name, storage_name, food, food_type, food_ingredients, food_amount, amount_type, expire_day]):
-            messagebox.showerror("Error", "All fields must be filled!")
+            messagebox.showerror("Fehler", "Alle Felder müssen ausgefüllt sein!")
             return
 
         # Überprüfung des Formats der Menge (float):
         try:
             food_amount = float(food_amount)
         except ValueError:
-            messagebox.showerror("Error", "Amount must be a number!")
+            messagebox.showerror("Fehler", "Die Menge muss eine Zahl sein!")
             return
 
         # Überprüfung des Datumsformats:
         if not re.match(r"^\d{4}-\d{2}-\d{2}$", expire_day):
-            messagebox.showerror("Error", "Date must be in format YYYY-MM-DD!")
+            messagebox.showerror("Fehler", "Das Datum muss im Format JJJJ-MM-TT vorliegen!")
             return
 
         food_item = [group_name, storage_name, food, food_type, food_ingredients, food_amount, amount_type, expire_day, sonst_info]
 
         if not self.db.group_name_exists(group_name):
-            messagebox.showerror("Error", "Group name does not exist!")
+            messagebox.showerror("Fehler", "Gruppenname existiert nicht!")
             return
 
         self.db.add_food_item(group_name, storage_name, food, food_type, food_ingredients, food_amount, amount_type, expire_day, sonst_info)
-        messagebox.showinfo("Success", "Food Item added successfully!")
+        messagebox.showinfo("Erfolg", "Lebensmittel erfolgreich hinzugefügt!")
         self.clear_entries()
 
 
@@ -157,4 +159,3 @@ class FoodItemApp(ctk.CTkFrame):
         self.entry_amount_type.set("")
         self.entry_expire_day.set_date("2024-01-01")  # Setzt das Datumsauswahlfeld zurück
         self.entry_sonst_info.delete(0, tk.END)
-
