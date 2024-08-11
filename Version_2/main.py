@@ -24,8 +24,8 @@ class Menu(ctk.CTk):
 
         self.Account = {
             "logged_in": True,
-            "name": "DerRegler",
-            "groups": ["dieReglers", "DieWebers"]
+            "name": "DummyUser",
+            "groups": ["DummyFamily"]
         }
 
         # self.Account = {
@@ -33,7 +33,6 @@ class Menu(ctk.CTk):
         #     "name" : "",
         #     "groups" : []
         # }
-        
 
         self.title("KitchenKeeper")
         self.geometry("1100x700")
@@ -41,7 +40,6 @@ class Menu(ctk.CTk):
         self.create_widgets()
 
     ## linkes Menü erstellen 
-
     def create_widgets(self):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)

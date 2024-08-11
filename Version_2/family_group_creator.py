@@ -53,7 +53,7 @@ class FamilyGroupApp(ctk.CTkFrame):
         storages = [storage.strip() for storage in self.entry_storages.get().split(',')]
 
         # Überprüfe, ob die Passwörter übereinstimmen
-        if password != confirm_password:
+        if str(password) != str(confirm_password):
             messagebox.showerror("Fehler", "Passwörter stimmen nicht überein!")
             return
 
