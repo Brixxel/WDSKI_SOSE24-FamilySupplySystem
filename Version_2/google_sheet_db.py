@@ -71,7 +71,7 @@ class GoogleSheetDB:
         if any(record['username'] == username or record['email'] == email for record in records):
             return False
         hashed_password = self.hash_password(password)
-        self.user_sheet.append_row([username, email, hashed_password])
+        self.user_sheet.append_row([username, email, password, hashed_password])
         return True
 
     def login_user(self, username, password):

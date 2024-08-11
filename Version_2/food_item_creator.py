@@ -20,7 +20,7 @@ class FoodItemApp(ctk.CTkFrame):
 
         # Wenn die Anzahl der Gruppen min 1 ist, sollen diese als Inhalt des Dropdown-Menüs zur Verfügung stehen:
         if len(group_names) >= 1 : 
-            storage_names = self.db.get_all_storages_from_family("dieReglers")
+            storage_names = self.db.get_all_storages_from_family(group_names[0])
 
         self.group_name_var = tk.StringVar(value=group_names[0] if group_names else "")
         self.dropdown_group_name = ctk.CTkOptionMenu(self, variable=self.group_name_var, values=group_names, command=self.update_storage_names)
