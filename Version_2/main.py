@@ -2,7 +2,6 @@ import os
 from tkinter import *
 import customtkinter as ctk
 from PIL import Image
-from tkinter import messagebox
 from food_item_creator import FoodItemApp
 from google_sheet_db import GoogleSheetDB
 from account_manager import AccountManager
@@ -15,7 +14,6 @@ ctk.set_default_color_theme("green")
 sheet_id = '1MtPC-Wh-qdQ-J06ExlSgaSaU4_U2FGuxXsbkIsJxKz0'
 script_dir = os.path.dirname(__file__)
 credentials_file = os.path.join(script_dir, "credentials.json")
-
 
 
 class Menu(ctk.CTk):
@@ -39,6 +37,8 @@ class Menu(ctk.CTk):
         self.title("KitchenKeeper")
         self.geometry("800x600")
         self.create_widgets()
+
+    ## linkes Menü erstellen 
 
     def create_widgets(self):
         self.grid_columnconfigure(1, weight=1)
@@ -86,8 +86,6 @@ class Menu(ctk.CTk):
         # Button erstellen mit Icon
         self.manage_account_button = ctk.CTkButton(self.menu_frame, text="Mein Konto", image=account_img, compound="left", command=self.open_account_manager)
         self.manage_account_button.grid(row=1, column=0, padx=20, pady=10)
-
-
                 
         
         ### Visual - Kontrolle
@@ -159,31 +157,6 @@ class Menu(ctk.CTk):
             label = ctk.CTkLabel(self.main_frame, text="Bitte einloggen oder registrieren", font=("Arial", 20))
             label.pack(pady=200)
 
-    def show_view_recipes(self):
-        if self.Account["logged_in"]:
-            for widget in self.main_frame.winfo_children():
-                widget.destroy()
-                # Dummy edit account function
-                messagebox.showinfo("Update", "Kommt bald!")
-        
-        else:
-            for widget in self.main_frame.winfo_children():
-                widget.destroy()
-            label = ctk.CTkLabel(self.main_frame, text="Bitte einloggen oder registrieren", font=("Arial", 20))
-            label.pack(pady=200)
-
-    def show_view_shopping_list(self):
-        if self.Account["logged_in"]:
-            for widget in self.main_frame.winfo_children():
-                widget.destroy()
-                # Dummy edit account function
-                messagebox.showinfo("Update", "Kommt bald!")
-        
-        else:
-            for widget in self.main_frame.winfo_children():
-                widget.destroy()
-            label = ctk.CTkLabel(self.main_frame, text="Bitte einloggen oder registrieren", font=("Arial", 20))
-            label.pack(pady=200)
             
             
     ### ---- Account-Manager - Funktionen: ---- ###
@@ -207,7 +180,9 @@ class Menu(ctk.CTk):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         ctk.set_widget_scaling(new_scaling_float)
 
-### öfnen des Fensters ###
+
+### öffnen des Fensters ###
+
 if __name__ == '__main__':
     app = Menu()
     icon_path = r"Version_2\icons\kühlschrank_dark.ico"
