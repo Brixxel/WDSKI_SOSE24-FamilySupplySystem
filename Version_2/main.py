@@ -197,7 +197,8 @@ class Menu(ctk.CTk):
 ### öfnen des Fensters ###
 if __name__ == '__main__':
     app = Menu()
-    icon_path = r"C:\Users\gmgru\OneDrive\Dokumente\GitHub\WDSKI_SOSE24-FamilySupplySystem\Version_2\kühlschrank.ico"
+    icon_path = os.path.dirname(__file__)
+    icon_path = os.path.join(script_dir, "kühlschrank.ico")
     if os.path.exists(icon_path):
         app.iconbitmap(icon_path)
     else:
