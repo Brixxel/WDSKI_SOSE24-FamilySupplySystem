@@ -15,11 +15,11 @@ class FoodItemApp(ctk.CTkFrame):
 
     def create_widgets(self):
 
-        #TODO  Familien Auswahl hier nur die Familien die der Account auch angehört
+        # Aus den Gruppen denen der Account angehört, soll er auswählen können
         group_names = self.Account["groups"]
-        
-        #TODO hier später FamilienName vom Account auswählen
-        storage_names = self.db.get_all_storages_from_family("dieReglers")
+        # Wenn die Anzahl der Gruppen min 1 ist, sollen diese als Inhalt des Dropdown-Menüs zur Verfügung stehen:
+        if len(group_names) >= 1 : 
+            storage_names = self.db.get_all_storages_from_family("dieReglers")
 
         self.group_name_var = tk.StringVar(value=group_names[0] if group_names else "")
         self.dropdown_group_name = ctk.CTkOptionMenu(self, variable=self.group_name_var, values=group_names, command=self.update_storage_names)
@@ -31,12 +31,6 @@ class FoodItemApp(ctk.CTkFrame):
         self.storage_name_var = tk.StringVar(value=storage_names[0] if storage_names else "")
         self.dropdown_storage_name = ctk.CTkOptionMenu(self, variable=self.storage_name_var, values=storage_names)
         self.dropdown_storage_name.grid(row=1, column=1, padx=20, pady=10, sticky='ew')
-
-        # self.label_location = ctk.CTkLabel(self, text="Location")
-        # self.label_location.grid(row=2, column=0, padx=20, pady=10, sticky='w')
-
-        # self.entry_location = ctk.CTkEntry(self)
-        # self.entry_location.grid(row=2, column=1, padx=20, pady=10, sticky='ew')
         
         self.label_explanation = ctk.CTkLabel(self, text="Füge hier noch ein paar Informationen über das Essen ein:")
         self.label_explanation.grid(row=2, column=1, padx=20, pady=10, sticky='nsew')
@@ -73,6 +67,8 @@ class FoodItemApp(ctk.CTkFrame):
         self.entry_food_amount = ctk.CTkEntry(self)
         self.entry_food_amount.grid(row=6, column=1, padx=20, pady=10, sticky='ew')
         
+        # Festlegen der Einheit
+        
         amount_types = ["g", "kg", "l", "ml"]
         self.amount_type_var = tk.StringVar(value= amount_types[0] if group_names else "")
 
@@ -82,6 +78,7 @@ class FoodItemApp(ctk.CTkFrame):
         self.entry_amount_type = ctk.CTkOptionMenu(self, variable=self.amount_type_var, values=amount_types)
         self.entry_amount_type.grid(row=7, column=1, padx=20, pady=10, sticky='ew')
 
+        # Verfalls Datum
         self.label_expire_day = ctk.CTkLabel(self, text="Ablaufdatum")
         self.label_expire_day.grid(row=8, column=0, padx=20, pady=10, sticky='w')
 
@@ -97,19 +94,19 @@ class FoodItemApp(ctk.CTkFrame):
         self.add_button = ctk.CTkButton(self, text="Add Food Item", command=self.add_food_item)
         self.add_button.grid(row=10, column=0, columnspan=2, padx=20, pady=20)
 
-        # Set column weights so that widgets expand horizontally
+        # Setzen der Spalten Gewichte, sodass Die Auswahl sich vergrößert
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
 
-        # Expand to fill the whole screen
         self.pack(fill="both", expand=True)
+
+    ### --------------  Eingabe Funktione / Handling von Inputs  ------------------ ###
 
     def update_storage_names(self, group_name):
         storage_names = self.db.get_all_storages_from_family(group_name)
         self.storage_name_var = tk.StringVar(value=storage_names[0] if storage_names else "")
         self.dropdown_storage_name.set("")
         self.dropdown_storage_name.configure(values=storage_names, variable=self.storage_name_var)
-
 
     def add_food_item(self):
         group_name = self.group_name_var.get()
@@ -158,6 +155,6 @@ class FoodItemApp(ctk.CTkFrame):
         self.entry_food_ingredients.delete(0, tk.END)
         self.entry_food_amount.delete(0, tk.END)
         self.entry_amount_type.set("")
-        self.entry_expire_day.set_date("")  # Setzt das Datumsauswahlfeld zurück
+        self.entry_expire_day.set_date("2024-01-01")  # Setzt das Datumsauswahlfeld zurück
         self.entry_sonst_info.delete(0, tk.END)
 

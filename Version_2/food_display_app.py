@@ -19,6 +19,7 @@ class FoodDisplayApp(ctk.CTkFrame):
         
         self.create_widgets()
 
+    # Tabellarische Darstellung der Kühlschrank Inhalte, sowie ergänzende Steuerungs und Manipulations-Buttons
     def create_widgets(self):
         
         self.filter_frame = ctk.CTkFrame(self)
@@ -69,6 +70,8 @@ class FoodDisplayApp(ctk.CTkFrame):
         delete_button = ctk.CTkButton(self, text="Löschen", command=self.delete_item)
         delete_button.pack(side="left", padx=10, pady=10)
 
+    ### ---------------------- Steuerungs-Funktionen -------------------------- ###
+
     def fill_table(self, *args):
         # Optional: `args` verwenden, um den Wert aus dem Dropdown-Menü zu berücksichtigen
         selected_group = self.group_name_var.get()
@@ -81,7 +84,7 @@ class FoodDisplayApp(ctk.CTkFrame):
         for row in data:
             self.tree.insert("", "end", values=row[1:])  # Ignoriere die ID-Spalte beim Einfügen
         
-        self.adjust_column_widths()  # Spaltenbreiten anpassen
+        #self.adjust_column_widths()  # Spaltenbreiten anpassen
             
     def adjust_column_widths(self):
         for col in self.tree["columns"]:
@@ -97,7 +100,7 @@ class FoodDisplayApp(ctk.CTkFrame):
 
     def update_item(self, original_values, new_values):
         group_name = self.group_name_var.get()
-        entry_id = original_values[0]  # Angenommen, die ID ist in original_values[0]
+        entry_id = original_values[0]  # die ID ist in original_values[0]
 
         self.db.update_food_item(entry_id, group_name, new_values)
         self.fill_table()
@@ -237,11 +240,14 @@ class FoodDisplayApp(ctk.CTkFrame):
         disable_filter_button.pack(pady=5)
 
 
-### Zum Bearbeiten der Einträge ###
+### ---- Dialog zum Bearbeiten der Einträge ---- ###
+
+
 class EditItemDialog(ctk.CTkToplevel):
     def __init__(self, parent, values, callback, db, group_name):
         super().__init__(parent)
         self.values = values
+        print(values)
         self.callback = callback
         self.db = db
         self.group_name = group_name
@@ -335,7 +341,7 @@ class EditItemDialog(ctk.CTkToplevel):
         
         # Neue Werte sammeln
         new_values = [
-            self.values[0],  # ID beibehalten
+            # ID beibehalten
             self.storage_var.get(),
             self.food_entry.get(),
             self.food_type_var.get(),

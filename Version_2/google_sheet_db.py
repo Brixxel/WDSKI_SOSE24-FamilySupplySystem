@@ -188,7 +188,7 @@ class GoogleSheetDB:
         
         if cell:
             row_number = cell.row
-            for col_index, value in enumerate(new_values, start=1):
+            for col_index, value in enumerate(new_values, start=2):
                 sheet.update_cell(row_number, col_index, value)
 
 

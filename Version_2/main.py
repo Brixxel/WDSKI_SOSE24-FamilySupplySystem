@@ -68,7 +68,7 @@ class Menu(ctk.CTk):
 #         self.view_shopping_list_button = ctk.CTkButton(self.menu_frame, text="View Shopping List", command=self.show_view_shopping_list)
 #         self.view_shopping_list_button.grid(row=5, column=0, padx=20, pady=10)
         
-        #TODO Sollte bald alles in einem unter-Menü ansteuerbar sein:
+        ### Account-Steuerung
         
         self.manage_account_button = ctk.CTkButton(self.menu_frame, text="My Account", command= self.open_account_manager)
         self.manage_account_button.grid(row=3, column=0, padx=20, pady=10)
@@ -78,7 +78,7 @@ class Menu(ctk.CTk):
         
         self.appearance_mode_label = ctk.CTkLabel(self.menu_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=10, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.menu_frame, values=["Light", "Dark", "System"],
+        self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.menu_frame, values=["System", "Light", "Dark"],
                                                             command=self.change_appearance_mode_event)
         self.appearance_mode_optionemenu.grid(row=11, column=0, padx=20, pady=(10, 10))
 
@@ -91,7 +91,9 @@ class Menu(ctk.CTk):
         self.main_frame = ctk.CTkFrame(self, width=600, height=600)
         self.main_frame.grid(row=0, column=1, sticky="nswe")
         
+        # Main-Screen zu Beginn
         # Willkommensnachricht
+        
         if self.Account["logged_in"]:
             for widget in self.main_frame.winfo_children():
                 widget.destroy()
@@ -106,7 +108,8 @@ class Menu(ctk.CTk):
                 widget.destroy()
             label = ctk.CTkLabel(self.main_frame, text="Please log in, or register", font=("Arial", 20))
             label.pack(pady=200)    
-            
+         
+    # ------------ Display Funktionen (Aufruf der separat gecodeten Darstellungen) ------------- #       
 
     def show_add_food_item(self):
         if self.Account["logged_in"]:
@@ -165,7 +168,7 @@ class Menu(ctk.CTk):
             label.pack(pady=200)
             
             
-    ### ---- Account - Funktionen: ----
+    ### ---- Account-Manager - Funktionen: ---- ###
     
     def open_account_manager(self):
         for widget in self.main_frame.winfo_children():
@@ -186,6 +189,7 @@ class Menu(ctk.CTk):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         ctk.set_widget_scaling(new_scaling_float)
 
+### öfnen des Fensters ###
 if __name__ == '__main__':
     app = Menu()
     app.mainloop()
