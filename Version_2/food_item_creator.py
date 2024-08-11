@@ -138,6 +138,7 @@ class FoodItemApp(ctk.CTkFrame):
             messagebox.showerror("Fehler", "Das Datum muss im Format JJJJ-MM-TT vorliegen!")
             return
 
+
         # Überprüfung ob Gruppe existiert:
         if not self.db.group_name_exists(group_name):
             messagebox.showerror("Fehler", "Gruppenname existiert nicht!")
